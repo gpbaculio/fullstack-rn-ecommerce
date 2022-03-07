@@ -1,35 +1,14 @@
 import {Text, useWindowDimensions} from 'react-native';
 import React, {useEffect} from 'react';
-import Animated, {
+import {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {DynamicPressable} from '../components';
+import {AnimatedDynamicElement, DynamicPressable} from '../components';
 import {commitLocalUpdate} from 'relay-runtime';
 import {useRelayEnvironment} from 'react-relay';
 import {HomeQuery} from '../__generated__/HomeQuery.graphql';
-
-class DynamicPressableClass extends React.Component<{onPress: () => void}> {
-  render(): React.ReactNode {
-    return (
-      <DynamicPressable
-        onPress={this.props.onPress}
-        position="absolute"
-        zIndex={4}
-        elevation={4}
-        width="100%"
-        height="100%"
-        display="none"
-        backgroundColor={'rgba(255, 255, 255, 0.4)'}
-      />
-    );
-  }
-}
-
-const AnimatedDynamicPressable = Animated.createAnimatedComponent(
-  DynamicPressableClass,
-);
 
 interface FiltersProps {
   showFilter: boolean;
@@ -38,6 +17,7 @@ interface FiltersProps {
 const Filters = ({showFilter}: FiltersProps) => {
   const {width} = useWindowDimensions();
   const isMounted = useSharedValue(false);
+  const animateHide = useSharedValue(false);
 
   const filterStyle = useAnimatedStyle(
     () => ({
@@ -54,8 +34,6 @@ const Filters = ({showFilter}: FiltersProps) => {
     }),
     [isMounted.value, showFilter],
   );
-
-  const animateHide = useSharedValue(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -91,9 +69,22 @@ const Filters = ({showFilter}: FiltersProps) => {
   };
 
   return (
-    <AnimatedDynamicPressable onPress={onPress} style={overlayStyle}>
+    <AnimatedDynamicElement
+      style={overlayStyle}
+      dynamicElement={
+        <DynamicPressable
+          onPress={onPress}
+          position="absolute"
+          zIndex={4}
+          elevation={4}
+          width="100%"
+          height="100%"
+          display="none"
+          backgroundColor={'rgba(255, 255, 255, 0.4)'}
+        />
+      }>
       <Text>Filters</Text>
-    </AnimatedDynamicPressable>
+    </AnimatedDynamicElement>
   );
 };
 
