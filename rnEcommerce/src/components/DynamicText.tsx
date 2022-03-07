@@ -22,10 +22,11 @@ const DynamicText = ({
   writingDirection,
   textAlignVertical,
   includeFontPadding,
+  style,
   ...rest
 }: TextStyle & TextProps) => (
   <Text
-    style={
+    style={[
       {
         color,
         fontFamily,
@@ -46,8 +47,9 @@ const DynamicText = ({
         writingDirection,
         textAlignVertical,
         includeFontPadding,
-      } as StyleProp<TextStyle>
-    }
+      } as StyleProp<TextStyle>,
+      style && style,
+    ]}
     {...rest}>
     {children}
   </Text>

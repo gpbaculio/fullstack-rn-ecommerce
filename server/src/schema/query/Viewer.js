@@ -56,13 +56,13 @@ const GraphQLViewerType = new GraphQLObjectType({
       },
       resolve: async (_, { search, categories, brands, ...args }) => {
         try {
-          console.log(
-            "JSON.STRINGIFY",
-            JSON.stringify({ search, categories, brands })
-          );
-          console.log("ARGS", JSON.stringify({ ...args }));
+          // console.log(
+          //   "JSON.STRINGIFY",
+          //   JSON.stringify({ search, categories, brands })
+          // );
+          // console.log("ARGS", JSON.stringify({ ...args }));
+          console.log("test");
           const result = await Product.find({});
-          console.log("result: ", result);
           return connectionFromArray(result, args);
         } catch (e) {
           return null;

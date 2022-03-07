@@ -81,10 +81,11 @@ const DynamicView = ({
   shadowOpacity,
   shadowRadius,
   transform,
+  style,
   ...rest
 }: ViewStyle & ViewProps) => (
   <View
-    style={
+    style={[
       {
         backfaceVisibility,
         backgroundColor,
@@ -164,8 +165,9 @@ const DynamicView = ({
         shadowOpacity,
         shadowRadius,
         transform,
-      } as StyleProp<ViewStyle>
-    }
+      } as StyleProp<ViewStyle>,
+      style && style,
+    ]}
     {...rest}>
     {children}
   </View>

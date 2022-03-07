@@ -1,11 +1,18 @@
-import {FlatList, useWindowDimensions, View} from 'react-native';
+import {useWindowDimensions, View} from 'react-native';
 import React, {useCallback, useState} from 'react';
+import {FlatList} from 'react-native-gesture-handler';
 import {graphql, useLazyLoadQuery} from 'react-relay';
 
-import {DynamicPressable, DynamicText, DynamicView} from '../components';
+import {
+  DynamicAnimatedView,
+  DynamicPressable,
+  DynamicText,
+  DynamicView,
+} from '../components';
 
 import {CategoriesFilterQuery} from '../__generated__/CategoriesFilterQuery.graphql';
 import Animated, {
+  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -27,7 +34,6 @@ const CategoriesFilterGraphQLQuery = graphql`
     }
   }
 `;
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 interface CategoryEdge {
   readonly cursor: string;
@@ -42,77 +48,92 @@ const CategoriesFilter = () => {
     CategoriesFilterGraphQLQuery,
     {},
   );
-  const actualHeight = useSharedValue(0);
-  const flatListHeight = useSharedValue(actualHeight.value);
-  const flatListStyle = useAnimatedStyle(() => {
-    return {
-      height: flatListHeight.value,
-    };
-  }, [flatListHeight.value]);
+  const [showFilters, setShowFilters] = useState(false);
+  const flatListHeight = useSharedValue(0);
 
-  const [showLess, setShowLess] = useState(false);
+  const onShowFiltersPress = useCallback(() => {
+    setShowFilters(v => !v);
+  }, [setShowFilters]);
 
-  const onShowPress = useCallback(() => {
-    if (flatListHeight.value !== actualHeight.value) {
-      flatListHeight.value = withTiming(actualHeight.value);
-    } else {
-      flatListHeight.value = withTiming(actualHeight.value / 2 - 16);
-    }
-    setShowLess(v => !v);
-  }, [actualHeight.value, flatListHeight.value, setShowLess]);
+  const filtersStyle = useAnimatedStyle(
+    () => ({
+      height: withTiming(flatListHeight.value),
+    }),
+    [flatListHeight.value, withTiming],
+  );
+
+  useAnimatedReaction(
+    () => showFilters,
+    show => {
+      flatListHeight.value = show ? 335 : 0;
+    },
+    [showFilters, flatListHeight.value],
+  );
+
+  const itemStyle = useAnimatedStyle(
+    () => ({
+      paddingVertical: withTiming(showFilters ? 3 : 0),
+      borderWidth: withTiming(showFilters ? 1 : 0),
+      opacity: withTiming(showFilters ? 1 : 0),
+    }),
+    [showFilters, withTiming],
+  );
 
   return (
-    <>
-      <AnimatedFlatList
-        style={flatListStyle}
-        ListHeaderComponentStyle={{marginBottom: 16}}
-        ListHeaderComponent={() => (
-          <DynamicText color={'#fff'} fontWeight="bold" marginBottom={8}>
-            CATEGORIES
-          </DynamicText>
-        )}
-        onContentSizeChange={(_, height) => {
-          if (height) {
-            actualHeight.value = height;
-            flatListHeight.value = height / 2;
+    <DynamicView>
+      <DynamicView flexDirection="row" justifyContent="space-between">
+        <DynamicText color={'#fff'} fontWeight="bold" marginBottom={8}>
+          CATEGORIES (
+          {
+            viewer?.products?.edges?.filter(
+              (value, index, self) =>
+                self.findIndex(
+                  v => v?.node?.category === value?.node?.category,
+                ) === index,
+            ).length
           }
-        }}
-        columnWrapperStyle={{justifyContent: 'space-between', marginBottom: 6}}
-        data={viewer?.products?.edges?.filter(
-          (value, index, self) =>
-            self.findIndex(v => v?.node?.category === value?.node?.category) ===
-            index,
-        )}
-        numColumns={3}
-        renderItem={({item}) => (
-          <DynamicView
-            width={'32%'}
-            borderRadius={4}
-            justifyContent="center"
-            paddingVertical={3}
-            alignItems="center"
-            backgroundColor={'green'}
-            borderColor="red"
-            borderWidth={1}>
-            <DynamicText textAlign="center" fontWeight="bold">
-              {(item as CategoryEdge)?.node?.category}
-            </DynamicText>
-          </DynamicView>
-        )}
-        scrollEnabled={false}
-        keyExtractor={item => `${(item as CategoryEdge)?.cursor}`}
-      />
-      <DynamicPressable
-        onPress={onShowPress}
-        paddingVertical={8}
-        borderBottomColor="red"
-        borderBottomWidth={1}
-        alignItems="center">
-        <DynamicText fontWeight="bold" color="#fff">
-          {showLess ? 'SHOW LESS' : 'SHOW MORE'}
+          )
         </DynamicText>
-      </DynamicPressable>
-    </>
+        <DynamicPressable zIndex={6} onPress={onShowFiltersPress}>
+          <DynamicText color={'#fff'} fontWeight="bold" marginBottom={8}>
+            {showFilters ? 'HIDE' : 'SHOW'}
+          </DynamicText>
+        </DynamicPressable>
+      </DynamicView>
+      <DynamicAnimatedView
+        flexDirection="row"
+        flexWrap="wrap"
+        justifyContent="space-between"
+        paddingTop={8}
+        style={filtersStyle}>
+        {viewer?.products?.edges
+          ?.filter(
+            (value, index, self) =>
+              self.findIndex(
+                v => v?.node?.category === value?.node?.category,
+              ) === index,
+          )
+          .map((item, index) => (
+            <DynamicAnimatedView
+              key={`${index}:${(item as CategoryEdge)?.node?.id}`}
+              marginBottom={8}
+              width={'32%'}
+              justifyContent="center"
+              alignItems="center"
+              borderColor="red"
+              borderRadius={4}
+              style={itemStyle}>
+              <DynamicText
+                fontSize={10}
+                textAlign="center"
+                fontWeight="bold"
+                color="#fff">
+                {(item as CategoryEdge)?.node?.category}
+              </DynamicText>
+            </DynamicAnimatedView>
+          ))}
+      </DynamicAnimatedView>
+    </DynamicView>
   );
 };
 

@@ -28,7 +28,6 @@ const HomeQueryGraphQL = graphql`
 const Home = () => {
   const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {});
   const environment = useRelayEnvironment();
-
   useEffect(() => {
     // initialize local state
     commitLocalUpdate(environment, store => {
@@ -43,7 +42,7 @@ const Home = () => {
         viewerProxy.setValue(false, 'showFilter');
       }
     });
-  }, [environment, viewer?.cart, viewer?.showFilter]);
+  }, [commitLocalUpdate, environment, viewer?.cart, viewer?.showFilter]);
 
   return (
     <ErrorBoundaryWithRetry
