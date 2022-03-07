@@ -5,7 +5,11 @@ import {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {AnimatedDynamicElement, DynamicPressable} from '../components';
+import {
+  AnimatedDynamicElement,
+  DynamicPressable,
+  DynamicView,
+} from '../components';
 import {commitLocalUpdate} from 'relay-runtime';
 import {useRelayEnvironment} from 'react-relay';
 import {HomeQuery} from '../__generated__/HomeQuery.graphql';
@@ -20,7 +24,7 @@ const Filters = ({showFilter}: FiltersProps) => {
   const isMounted = useSharedValue(false);
   const animateHide = useSharedValue(false);
 
-  const filterStyle = useAnimatedStyle(
+  const filtersStyle = useAnimatedStyle(
     () => ({
       ...(isMounted.value && {
         transform: [
@@ -40,7 +44,7 @@ const Filters = ({showFilter}: FiltersProps) => {
     setTimeout(() => {
       animateHide.value = showFilter;
     }, 500);
-  }, [showFilter]);
+  }, [showFilter, animateHide.value]);
 
   const overlayStyle = useAnimatedStyle(
     () => ({
@@ -70,7 +74,6 @@ const Filters = ({showFilter}: FiltersProps) => {
 
   return (
     <AnimatedDynamicElement
-      style={overlayStyle}
       dynamicElement={
         <DynamicPressable
           onPress={onPress}
@@ -82,8 +85,22 @@ const Filters = ({showFilter}: FiltersProps) => {
           display="none"
           backgroundColor={'rgba(255, 255, 255, 0.4)'}
         />
-      }>
-      <Text>Filters</Text>
+      }
+      style={overlayStyle}>
+      <AnimatedDynamicElement
+        dynamicElement={
+          <DynamicView
+            width="70%"
+            height="100%"
+            backgroundColor="#1f1d2b"
+            flexDirection="row"
+            position="absolute"
+            zIndex={4}
+            elevation={4}
+          />
+        }
+        style={filtersStyle}
+      />
     </AnimatedDynamicElement>
   );
 };
