@@ -18,6 +18,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import FilterHeader from './FilterHeader';
 
 const BrandsFilterGraphQLQuery = graphql`
   query BrandsFilterQuery {
@@ -89,24 +90,18 @@ const BrandsFilter = () => {
 
   return (
     <DynamicView>
-      <DynamicView flexDirection="row" justifyContent="space-between">
-        <DynamicText color={'#fff'} fontWeight="bold" marginBottom={8}>
-          BRANDS (
-          {
-            viewer?.products?.edges?.filter(
-              (value, index, self) =>
-                self.findIndex(v => v?.node?.brand === value?.node?.brand) ===
-                index,
-            ).length
-          }
-          )
-        </DynamicText>
-        <DynamicPressable zIndex={6} onPress={onShowFiltersPress}>
-          <DynamicText color={'#fff'} fontWeight="bold" marginBottom={8}>
-            {showFilters ? 'HIDE' : 'SHOW'}
-          </DynamicText>
-        </DynamicPressable>
-      </DynamicView>
+      <FilterHeader
+        title="BRANDS"
+        length={
+          viewer?.products?.edges?.filter(
+            (value, index, self) =>
+              self.findIndex(v => v?.node?.brand === value?.node?.brand) ===
+              index,
+          ).length
+        }
+        onShowHandlerPress={onShowFiltersPress}
+        showHandlerText={showFilters ? 'HIDE' : 'SHOW'}
+      />
       <DynamicAnimatedView
         style={filtersStyle}
         flexDirection="row"
