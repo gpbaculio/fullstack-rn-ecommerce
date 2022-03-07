@@ -1,15 +1,17 @@
-import React, {Suspense, useEffect} from 'react';
+import React, {Suspense} from 'react';
 import {ActivityIndicator} from 'react-native';
+import {graphql, useLazyLoadQuery, commitLocalUpdate} from 'react-relay';
+
 import {
-  graphql,
-  useLazyLoadQuery,
-  commitLocalUpdate,
-  useRelayEnvironment,
-} from 'react-relay';
-import {ErrorBoundaryWithRetry} from '../../components';
-import DynamicText from '../../components/DynamicText';
-import DynamicView from '../../components/DynamicView';
+  ErrorBoundaryWithRetry,
+  DynamicView,
+  DynamicText,
+} from '../../components';
+
 import {HomeQuery} from '../../__generated__/HomeQuery.graphql';
+
+import environment from '../../environment';
+
 import Products from './Products';
 
 const HomeQueryGraphQL = graphql`
@@ -25,30 +27,22 @@ const HomeQueryGraphQL = graphql`
   }
 `;
 
+// initialize local state
+
+commitLocalUpdate(environment, store => {
+  const viewerProxy = store
+    .getRoot()
+    .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
+
+  viewerProxy.setLinkedRecords([], 'cart');
+  viewerProxy.setLinkedRecords([], 'brandsFilters');
+  viewerProxy.setLinkedRecords([], 'categoriesFilters');
+  viewerProxy.setValue(false, 'showFilter');
+  viewerProxy.setValue('', 'searchText');
+});
+
 const Home = () => {
   const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {});
-  const environment = useRelayEnvironment();
-  useEffect(() => {
-    // initialize local state
-    commitLocalUpdate(environment, store => {
-      const viewerProxy = store
-        .getRoot()
-        .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
-      if (
-        viewerProxy.getLinkedRecords('cart') === undefined &&
-        viewerProxy.getLinkedRecord('brandsFilters') === undefined &&
-        viewerProxy.getLinkedRecords('categoriesFilters') === undefined &&
-        viewerProxy.getLinkedRecord('showFilter') === undefined &&
-        viewerProxy.getLinkedRecord('searchText') === undefined
-      ) {
-        viewerProxy.setLinkedRecords([], 'cart');
-        viewerProxy.setLinkedRecords([], 'brandsFilters');
-        viewerProxy.setLinkedRecords([], 'categoriesFilters');
-        viewerProxy.setValue(false, 'showFilter');
-        viewerProxy.setValue('', 'searchText');
-      }
-    });
-  }, [commitLocalUpdate, environment, viewer?.cart, viewer?.showFilter]);
 
   return (
     <ErrorBoundaryWithRetry

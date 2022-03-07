@@ -6,11 +6,14 @@ import {
   commitLocalUpdate,
   useRelayEnvironment,
 } from 'react-relay';
+
 import {DynamicText, DynamicView} from '../../components';
+
 import {ProductsPagination_viewer$key} from '../../__generated__/ProductsPagination_viewer.graphql';
 import {ProductsPaginationQuery} from '../../__generated__/ProductsPaginationQuery.graphql';
-import Product from './Product';
 import {ProductFragmentGraphQL_product$key} from '../../__generated__/ProductFragmentGraphQL_product.graphql';
+
+import Product from './Product';
 
 const ProductsPaginationGraphQL = graphql`
   fragment ProductsPagination_viewer on Viewer

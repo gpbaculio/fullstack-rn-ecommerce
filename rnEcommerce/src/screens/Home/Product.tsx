@@ -1,6 +1,7 @@
 import {View, Text} from 'react-native';
 import React from 'react';
 import {graphql, useFragment} from 'react-relay';
+
 import {ProductFragmentGraphQL_product$key} from '../../__generated__/ProductFragmentGraphQL_product.graphql';
 
 const ProductFragmentGraphQL = graphql`
