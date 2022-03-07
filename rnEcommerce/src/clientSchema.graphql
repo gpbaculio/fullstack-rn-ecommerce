@@ -1,4 +1,7 @@
 extend type Viewer {
   showFilter: Boolean
   cart: [Product]
+  brandsFilters: [String]
+  categoriesFilters: [String]
+  searchText: String
 }

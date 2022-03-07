@@ -36,10 +36,16 @@ const Home = () => {
         .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
       if (
         viewerProxy.getLinkedRecords('cart') === undefined &&
-        viewerProxy.getLinkedRecord('showFilter') === undefined
+        viewerProxy.getLinkedRecord('brandsFilters') === undefined &&
+        viewerProxy.getLinkedRecords('categoriesFilters') === undefined &&
+        viewerProxy.getLinkedRecord('showFilter') === undefined &&
+        viewerProxy.getLinkedRecord('searchText') === undefined
       ) {
         viewerProxy.setLinkedRecords([], 'cart');
+        viewerProxy.setLinkedRecords([], 'brandsFilters');
+        viewerProxy.setLinkedRecords([], 'categoriesFilters');
         viewerProxy.setValue(false, 'showFilter');
+        viewerProxy.setValue('', 'searchText');
       }
     });
   }, [commitLocalUpdate, environment, viewer?.cart, viewer?.showFilter]);
