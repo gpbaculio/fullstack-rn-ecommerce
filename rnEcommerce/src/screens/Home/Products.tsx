@@ -1,5 +1,5 @@
 import {FlatList, ActivityIndicator, Pressable, TextInput} from 'react-native';
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   graphql,
   usePaginationFragment,
@@ -64,6 +64,21 @@ const Products = ({viewer}: ProductsProps) => {
       ProductsPagination_viewer$key
     >(ProductsPaginationGraphQL, viewer);
 
+  const onFiltersPress = useCallback(() => {
+    // refetch({
+    //   brands: ['BRANDS', 'TEST'],
+    //   search: 'SEARCH_TEST',
+    //   categories: ['CATE', 'GORY', 'TEST'],
+    // })
+
+    commitLocalUpdate(environment, store => {
+      const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+      if (viewerProxy) {
+        viewerProxy.setValue(!viewerProxy.getValue('showFilter'), 'showFilter');
+      }
+    });
+  }, [commitLocalUpdate, environment]);
+
   return (
     <>
       <FlatList
@@ -83,25 +98,7 @@ const Products = ({viewer}: ProductsProps) => {
             </DynamicView>
             {/* use refetch when filtering */}
             <DynamicView backgroundColor="red">
-              <Pressable
-                onPress={() => {
-                  // refetch({
-                  //   brands: ['BRANDS', 'TEST'],
-                  //   search: 'SEARCH_TEST',
-                  //   categories: ['CATE', 'GORY', 'TEST'],
-                  // })
-                  commitLocalUpdate(environment, store => {
-                    const viewerProxy = store
-                      .getRoot()
-                      .getLinkedRecord('viewer');
-                    if (viewerProxy) {
-                      viewerProxy.setValue(
-                        !viewerProxy.getValue('showFilter'),
-                        'showFilter',
-                      );
-                    }
-                  });
-                }}>
+              <Pressable onPress={onFiltersPress}>
                 <DynamicText color={'blue'}>Filters</DynamicText>
               </Pressable>
             </DynamicView>
