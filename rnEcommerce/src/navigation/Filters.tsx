@@ -1,5 +1,5 @@
 import {Text, useWindowDimensions} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   useAnimatedStyle,
   useSharedValue,
@@ -56,7 +56,7 @@ const Filters = ({showFilter}: FiltersProps) => {
   }, []);
   const environment = useRelayEnvironment();
 
-  const onPress = () => {
+  const onPress = useCallback(() => {
     commitLocalUpdate(environment, store => {
       const viewerProxy = store
         .getRoot()
@@ -66,7 +66,7 @@ const Filters = ({showFilter}: FiltersProps) => {
         viewerProxy.setValue(false, 'showFilter');
       }
     });
-  };
+  }, [commitLocalUpdate, environment]);
 
   return (
     <AnimatedDynamicElement
