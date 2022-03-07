@@ -1,0 +1,4 @@
+extend type Viewer {
+  showFilter: Boolean
+  cart: [Product]
+}
