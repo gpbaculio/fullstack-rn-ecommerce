@@ -15,6 +15,7 @@ interface FiltersProps {
 }
 
 const Filters = ({showFilter}: FiltersProps) => {
+  const environment = useRelayEnvironment();
   const {width} = useWindowDimensions();
   const isMounted = useSharedValue(false);
   const animateHide = useSharedValue(false);
@@ -54,7 +55,6 @@ const Filters = ({showFilter}: FiltersProps) => {
       isMounted.value = true;
     }, 500);
   }, []);
-  const environment = useRelayEnvironment();
 
   const onPress = useCallback(() => {
     commitLocalUpdate(environment, store => {
