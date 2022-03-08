@@ -4,6 +4,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import {graphql, useLazyLoadQuery} from 'react-relay';
 
 import {
+  DynamicAnimatedPressable,
   DynamicAnimatedView,
   DynamicPressable,
   DynamicText,
@@ -45,8 +46,14 @@ interface BrandEdge {
     readonly brand: string | null;
   } | null;
 }
-
-const BrandsFilter = () => {
+interface BrandsFilterProps {
+  brandsFilters: string[];
+  handleBrandsFilters: (b: string) => void;
+}
+const BrandsFilter = ({
+  brandsFilters,
+  handleBrandsFilters,
+}: BrandsFilterProps) => {
   const {viewer} = useLazyLoadQuery<BrandsFilterQuery>(
     BrandsFilterGraphQLQuery,
     {},
@@ -115,7 +122,10 @@ const BrandsFilter = () => {
               index,
           )
           .map((item, index) => (
-            <DynamicAnimatedView
+            <DynamicAnimatedPressable
+              onPress={() =>
+                handleBrandsFilters((item as BrandEdge)?.node?.brand as string)
+              }
               key={`${index}:${(item as BrandEdge)?.node?.id}`}
               marginBottom={8}
               width={'32%'}
@@ -123,6 +133,13 @@ const BrandsFilter = () => {
               alignItems="center"
               borderColor="red"
               borderRadius={4}
+              backgroundColor={
+                brandsFilters.includes(
+                  (item as BrandEdge)?.node?.brand as string,
+                )
+                  ? 'red'
+                  : 'transparent'
+              }
               style={itemStyle}>
               <DynamicText
                 fontSize={10}
@@ -131,7 +148,7 @@ const BrandsFilter = () => {
                 color="#fff">
                 {(item as BrandEdge)?.node?.brand}
               </DynamicText>
-            </DynamicAnimatedView>
+            </DynamicAnimatedPressable>
           ))}
       </DynamicAnimatedView>
     </DynamicView>

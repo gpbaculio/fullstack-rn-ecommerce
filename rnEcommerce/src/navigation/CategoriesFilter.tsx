@@ -1,9 +1,15 @@
 import {useWindowDimensions, View} from 'react-native';
 import React, {useCallback, useState} from 'react';
 import {FlatList} from 'react-native-gesture-handler';
-import {graphql, useLazyLoadQuery} from 'react-relay';
+import {
+  graphql,
+  useLazyLoadQuery,
+  useRelayEnvironment,
+  commitLocalUpdate,
+} from 'react-relay';
 
 import {
+  DynamicAnimatedPressable,
   DynamicAnimatedView,
   DynamicPressable,
   DynamicText,
@@ -18,6 +24,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import FilterHeader from './FilterHeader';
+import {HomeQuery} from '../__generated__/HomeQuery.graphql';
 
 const CategoriesFilterGraphQLQuery = graphql`
   query CategoriesFilterQuery {
@@ -44,7 +51,14 @@ interface CategoryEdge {
   } | null;
 }
 
-const CategoriesFilter = () => {
+interface CategoriesFilter {
+  categoriesFilters: string[];
+  handleCategoriesFilters: (c: string) => void;
+}
+const CategoriesFilter = ({
+  categoriesFilters,
+  handleCategoriesFilters,
+}: CategoriesFilter) => {
   const {viewer} = useLazyLoadQuery<CategoriesFilterQuery>(
     CategoriesFilterGraphQLQuery,
     {},
@@ -109,10 +123,22 @@ const CategoriesFilter = () => {
               ) === index,
           )
           .map((item, index) => (
-            <DynamicAnimatedView
+            <DynamicAnimatedPressable
+              onPress={() =>
+                handleCategoriesFilters(
+                  (item as CategoryEdge)?.node?.category as string,
+                )
+              }
               key={`${index}:${(item as CategoryEdge)?.node?.id}`}
               marginBottom={8}
               width={'32%'}
+              backgroundColor={
+                categoriesFilters.includes(
+                  (item as CategoryEdge)?.node?.category as string,
+                )
+                  ? 'red'
+                  : 'transparent'
+              }
               justifyContent="center"
               alignItems="center"
               borderColor="red"
@@ -125,7 +151,7 @@ const CategoriesFilter = () => {
                 color="#fff">
                 {(item as CategoryEdge)?.node?.category}
               </DynamicText>
-            </DynamicAnimatedView>
+            </DynamicAnimatedPressable>
           ))}
       </DynamicAnimatedView>
     </DynamicView>

@@ -1,5 +1,5 @@
 import {ScrollView, useWindowDimensions} from 'react-native';
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   useAnimatedStyle,
   useSharedValue,
@@ -31,6 +31,29 @@ const Filters = ({showFilter}: FiltersProps) => {
   const {width} = useWindowDimensions();
   const isMounted = useSharedValue(false);
   const animateHide = useSharedValue(false);
+  const [brandsFilters, setBrandsFilters] = useState<string[]>([]);
+  const [categoriesFilters, setCategoriesFilters] = useState<string[]>([]);
+  const [priceFilters, handlePriceFilters] = useState<string[]>([]);
+
+  const handleCategoriesFilters = useCallback(
+    (category: string) => {
+      setCategoriesFilters(v => {
+        if (v.includes(category)) return v.filter(i => i !== category);
+        return [...v, category];
+      });
+    },
+    [setCategoriesFilters],
+  );
+
+  const handleBrandsFilters = useCallback(
+    (brand: string) => {
+      setBrandsFilters(v => {
+        if (v.includes(brand)) return v.filter(i => i !== brand);
+        return [...v, brand];
+      });
+    },
+    [setBrandsFilters],
+  );
 
   const filterStyle = useAnimatedStyle(
     () => ({
@@ -144,10 +167,16 @@ const Filters = ({showFilter}: FiltersProps) => {
             </DynamicView>
           </DynamicView>
           <DynamicView marginTop={16}>
-            <CategoriesFilter />
+            <CategoriesFilter
+              categoriesFilters={categoriesFilters}
+              handleCategoriesFilters={handleCategoriesFilters}
+            />
           </DynamicView>
           <DynamicView marginTop={16}>
-            <BrandsFilter />
+            <BrandsFilter
+              brandsFilters={brandsFilters}
+              handleBrandsFilters={handleBrandsFilters}
+            />
           </DynamicView>
         </ScrollView>
         <DynamicView
