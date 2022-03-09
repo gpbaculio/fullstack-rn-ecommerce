@@ -65,7 +65,47 @@ const Navigation = () => {
             },
           }}
         />
-        <AppStack.Screen name="Cart" component={Cart} />
+        <AppStack.Screen
+          options={{
+            header: () => {
+              const {top} = useSafeAreaInsets();
+              const fetchKey = useContext(FetchKeyContext);
+              const navigation =
+                useNavigation<StackNavigationProp<AppStackParamList>>();
+              const viewer = useHomeViewer(fetchKey);
+              return (
+                <DynamicView
+                  paddingTop={top + 16}
+                  backgroundColor="red"
+                  paddingHorizontal={16}
+                  paddingBottom={8}
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between">
+                  <DynamicPressable
+                    borderWidth={1}
+                    padding={4}
+                    borderRadius={4}
+                    borderColor={'#fff'}
+                    onPress={() => {
+                      navigation.goBack();
+                    }}>
+                    <DynamicText color="#fff" fontWeight="bold">
+                      BACK
+                    </DynamicText>
+                  </DynamicPressable>
+                  <DynamicView padding={5}>
+                    <DynamicText color="#fff" fontWeight="bold">
+                      CART ({viewer?.cart?.length})
+                    </DynamicText>
+                  </DynamicView>
+                </DynamicView>
+              );
+            },
+          }}
+          name="Cart"
+          component={Cart}
+        />
       </AppStack.Navigator>
     </>
   );
