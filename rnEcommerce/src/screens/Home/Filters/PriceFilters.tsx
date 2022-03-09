@@ -1,37 +1,22 @@
 import React, {useCallback} from 'react';
-import {
-  graphql,
-  useLazyLoadQuery,
-  useRelayEnvironment,
-  commitLocalUpdate,
-} from 'react-relay';
+import {useRelayEnvironment, commitLocalUpdate} from 'react-relay';
 
 import {DynamicPressable, DynamicText, DynamicView} from '../../../components';
+import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
 
-import {PriceFiltersQuery} from '../../../__generated__/PriceFiltersQuery.graphql';
 import {SORT_PRICE} from '../../../__generated__/ProductsPaginationQuery.graphql';
+import {useHomeViewer} from '../Home';
 
-const PriceFiltersGraphQLQuery = graphql`
-  query PriceFiltersQuery {
-    viewer {
-      sortPrice
-    }
-  }
-`;
-
-const PriceFilters = () => {
+const PriceFilters = ({fetchKey}: {fetchKey: number}) => {
+  const viewer = useHomeViewer(fetchKey);
   const environment = useRelayEnvironment();
-  const {viewer} = useLazyLoadQuery<PriceFiltersQuery>(
-    PriceFiltersGraphQLQuery,
-    {},
-  );
 
   const onPriceFilterPress = useCallback(
     (priceFilter: SORT_PRICE) => {
       commitLocalUpdate(environment, store => {
         const viewerProxy = store
           .getRoot()
-          .getLinkedRecord<PriceFiltersQuery['response']['viewer']>('viewer');
+          .getLinkedRecord<HomeQuery>('viewer');
         const sortPriceProxy = viewerProxy.getValue('sortPrice');
         if (sortPriceProxy === priceFilter) {
           viewerProxy.setValue(null, 'sortPrice');
@@ -44,7 +29,7 @@ const PriceFilters = () => {
   );
 
   return (
-    <DynamicView>
+    <DynamicView width="100%">
       <DynamicText color={'#fff'} fontWeight="bold">
         PRICE
       </DynamicText>

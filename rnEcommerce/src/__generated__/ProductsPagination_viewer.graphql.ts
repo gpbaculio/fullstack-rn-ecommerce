@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<576cb27f8fd01aa7d2d38bc29ecfbe8c>>
+ * @generated SignedSource<<d5978588818a1144f7c864c7a304b8fd>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,8 +14,6 @@ import { FragmentRefs } from "relay-runtime";
 export type ProductsPagination_viewer$data = {
   readonly id: string;
   readonly showFilter: boolean | null;
-  readonly brandsFilters: ReadonlyArray<string | null> | null;
-  readonly categoriesFilters: ReadonlyArray<string | null> | null;
   readonly searchText: string | null;
   readonly sortPrice: SORT_PRICE | null;
   readonly shouldRefetch: boolean | null;
@@ -244,20 +242,6 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "brandsFilters",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "categoriesFilters",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
           "name": "searchText",
           "storageKey": null
         },
@@ -295,6 +279,6 @@ return {
 };
 })();
 
-(node as any).hash = "11f03d43c31dddbd9c14e87852ac80f7";
+(node as any).hash = "9bf201a8d9209941388c548a92efcf50";
 
 export default node;

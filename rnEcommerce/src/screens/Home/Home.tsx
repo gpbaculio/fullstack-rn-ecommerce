@@ -13,37 +13,60 @@ import {
   DynamicText,
   DynamicPressable,
 } from '../../components';
-
-import {HomeQuery} from '../../__generated__/HomeQuery.graphql';
-
 import environment from '../../environment';
+import {useCountRenders} from '../../useCountRenders';
+
+import {HomeQuery, HomeQuery$data} from '../../__generated__/HomeQuery.graphql';
+import {ProductsPagination_viewer$key} from '../../__generated__/ProductsPagination_viewer.graphql';
+import Filters from './Filters';
 
 import Products from './Products';
 
-const HomeQueryGraphQL = graphql`
+export const HomeQueryGraphQL = graphql`
   query HomeQuery {
     viewer {
-      id
       showFilter
-      brandsFilters
-      categoriesFilters
       searchText
       sortPrice
+      shouldRefetch
       cart {
         ...ProductFragmentGraphQL_product
+        id
+        brand
+        barCode
+        price
+        category
+        display_name
+        isAddedToCart
       }
       showFilter
       ...ProductsPagination_viewer
+      productsCount: products {
+        edges {
+          cursor
+          node {
+            id
+            brand
+            category
+            ...ProductFragmentGraphQL_product
+          }
+        }
+      }
     }
   }
 `;
 
-const Home = ({fetchKey}: {fetchKey: number}) => {
+// initialize local state
+export const useHomeViewer = (fetchKey: number) => {
   const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {fetchKey});
-  const environment = useRelayEnvironment();
-  useEffect(() => {
-    // initialize local state
+  return viewer;
+};
 
+const Home = ({fetchKey}: {fetchKey: number}) => {
+  const environment = useRelayEnvironment();
+  const viewer = useHomeViewer(fetchKey);
+  useEffect(() => {
+    console.log('render');
     commitLocalUpdate(environment, store => {
       const viewerProxy = store
         .getRoot()
@@ -77,7 +100,6 @@ const Home = ({fetchKey}: {fetchKey: number}) => {
       }
     });
   }, [commitLocalUpdate, environment]);
-
   return (
     <Suspense
       fallback={
@@ -85,10 +107,13 @@ const Home = ({fetchKey}: {fetchKey: number}) => {
           <ActivityIndicator size="large" color="#868f99" />
         </DynamicView>
       }>
-      {!!viewer && <Products viewer={viewer} />}
+      <Products viewer={viewer as ProductsPagination_viewer$key} />
+      <Filters fetchKey={fetchKey} showFilter={!!viewer?.showFilter} />
     </Suspense>
   );
 };
+
+export const FetchKeyContext = React.createContext(0);
 
 export default () => (
   <ErrorBoundaryWithRetry
@@ -103,6 +128,10 @@ export default () => (
         </DynamicPressable>
       </DynamicView>
     )}>
-    {({fetchKey}) => <Home fetchKey={fetchKey} />}
+    {({fetchKey}) => (
+      <FetchKeyContext.Provider value={fetchKey}>
+        <Home fetchKey={fetchKey} />
+      </FetchKeyContext.Provider>
+    )}
   </ErrorBoundaryWithRetry>
 );

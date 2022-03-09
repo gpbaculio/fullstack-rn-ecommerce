@@ -1,35 +1,26 @@
-import React, {Suspense} from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import {graphql, useLazyLoadQuery} from 'react-relay';
+import React, {Suspense, useContext} from 'react';
+import {
+  createStackNavigator,
+  StackNavigationProp,
+} from '@react-navigation/stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ActivityIndicator} from 'react-native';
 
-import {Home, Product} from '../screens';
-import {DynamicText, DynamicView} from '../components';
-
-import {NavigationQuery} from '../__generated__/NavigationQuery.graphql';
-import Filters from '../screens/Home/Filters';
+import {Home, Cart} from '../screens';
+import {DynamicPressable, DynamicText, DynamicView} from '../components';
+import {FetchKeyContext, useHomeViewer} from '../screens/Home/Home';
+import {useNavigation} from '@react-navigation/native';
 
 export type AppStackParamList = {
   Home: undefined;
-  Product: undefined;
+  Cart: {
+    fetchKey: number;
+  };
 };
 
 const AppStack = createStackNavigator<AppStackParamList>();
 
-const NavigationGraphQLQuery = graphql`
-  query NavigationQuery {
-    viewer {
-      showFilter
-    }
-  }
-`;
-
 const Navigation = () => {
-  const {viewer} = useLazyLoadQuery<NavigationQuery>(
-    NavigationGraphQLQuery,
-    {},
-  );
   return (
     <>
       <AppStack.Navigator>
@@ -39,6 +30,10 @@ const Navigation = () => {
           options={{
             header: () => {
               const {top} = useSafeAreaInsets();
+              const fetchKey = useContext(FetchKeyContext);
+              const navigation =
+                useNavigation<StackNavigationProp<AppStackParamList>>();
+              const viewer = useHomeViewer(fetchKey);
               return (
                 <DynamicView
                   paddingTop={top + 16}
@@ -46,21 +41,32 @@ const Navigation = () => {
                   paddingHorizontal={16}
                   paddingBottom={8}
                   flexDirection="row"
+                  alignItems="center"
                   justifyContent="space-between">
                   <DynamicText color="#fff" fontWeight="bold">
                     GROWSARI
                   </DynamicText>
-                  <DynamicText color="#fff" fontWeight="bold">
-                    Cart
-                  </DynamicText>
+                  <DynamicPressable
+                    borderRadius={4}
+                    borderWidth={1}
+                    padding={4}
+                    borderColor={'#fff'}
+                    onPress={() => {
+                      navigation.navigate('Cart', {
+                        fetchKey,
+                      });
+                    }}>
+                    <DynamicText color="#fff" fontWeight="bold">
+                      Cart ({viewer?.cart?.length})
+                    </DynamicText>
+                  </DynamicPressable>
                 </DynamicView>
               );
             },
           }}
         />
-        <AppStack.Screen name="Product" component={Product} />
+        <AppStack.Screen name="Cart" component={Cart} />
       </AppStack.Navigator>
-      <Filters showFilter={!!viewer?.showFilter} />
     </>
   );
 };

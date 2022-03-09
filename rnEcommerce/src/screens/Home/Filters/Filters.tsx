@@ -22,33 +22,18 @@ import {
   DynamicView,
 } from '../../../components';
 
-import BrandsFilter from './BrandsFilter';
-import CategoriesFilter from './CategoriesFilter';
 import PriceFilters from './PriceFilters';
 import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
-
-import {FiltersQuery} from '../../../__generated__/FiltersQuery.graphql';
+import {useCountRenders} from '../../../useCountRenders';
 
 interface FiltersProps {
   showFilter: boolean;
+  fetchKey: number;
 }
-const FiltersGraphQLQuery = graphql`
-  query FiltersQuery {
-    viewer {
-      id
-      showFilter
-      brandsFilters
-      categoriesFilters
-      searchText
-      sortPrice
-    }
-  }
-`;
 
-const Filters = ({showFilter}: FiltersProps) => {
+const Filters = ({showFilter, fetchKey}: FiltersProps) => {
   const environment = useRelayEnvironment();
 
-  const {viewer} = useLazyLoadQuery<FiltersQuery>(FiltersGraphQLQuery, {});
   const {bottom} = useSafeAreaInsets();
   const {width} = useWindowDimensions();
   const isMounted = useSharedValue(false);
@@ -137,15 +122,7 @@ const Filters = ({showFilter}: FiltersProps) => {
         paddingBottom={bottom}
         padding={12}
         style={filterStyle}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <PriceFilters />
-          <DynamicView marginTop={16}>
-            <CategoriesFilter />
-          </DynamicView>
-          <DynamicView marginTop={16}>
-            <BrandsFilter />
-          </DynamicView>
-        </ScrollView>
+        <PriceFilters fetchKey={fetchKey} />
         <DynamicView
           position="absolute"
           width="100%"

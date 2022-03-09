@@ -1,5 +1,11 @@
-import {FlatList, ActivityIndicator, Pressable, TextInput} from 'react-native';
-import React, {Suspense, useCallback, useEffect} from 'react';
+import {
+  FlatList,
+  ActivityIndicator,
+  Pressable,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
+import React, {Suspense, useCallback, useEffect, useState} from 'react';
 import {
   graphql,
   usePaginationFragment,
@@ -7,7 +13,7 @@ import {
   useRelayEnvironment,
 } from 'react-relay';
 
-import {DynamicText, DynamicView} from '../../components';
+import {DynamicPressable, DynamicText, DynamicView} from '../../components';
 
 import {ProductsPagination_viewer$key} from '../../__generated__/ProductsPagination_viewer.graphql';
 import {ProductsPaginationQuery} from '../../__generated__/ProductsPaginationQuery.graphql';
@@ -15,6 +21,7 @@ import {ProductFragmentGraphQL_product$key} from '../../__generated__/ProductFra
 
 import Product from './Product';
 import Filters from './Filters';
+import {useDebounce} from '../../hooks';
 
 const ProductsPaginationGraphQL = graphql`
   fragment ProductsPagination_viewer on Viewer
@@ -29,8 +36,6 @@ const ProductsPaginationGraphQL = graphql`
   @refetchable(queryName: "ProductsPaginationQuery") {
     id
     showFilter
-    brandsFilters
-    categoriesFilters
     searchText
     sortPrice
     shouldRefetch
@@ -67,6 +72,20 @@ interface ProductsProps {
 }
 const Products = ({viewer}: ProductsProps) => {
   const environment = useRelayEnvironment();
+  const [text, onChangeText] = useState('');
+  const debouncedText = useDebounce(text, 3000);
+  useEffect(() => {
+    if (debouncedText) {
+      commitLocalUpdate(environment, store => {
+        const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+        if (viewerProxy) {
+          viewerProxy.setValue(debouncedText, 'searchText');
+          viewerProxy.setValue(true, 'shouldRefetch');
+        }
+      });
+    }
+  }, [debouncedText, commitLocalUpdate, environment]);
+
   const {data, hasNext, loadNext, isLoadingNext, refetch} =
     usePaginationFragment<
       ProductsPaginationQuery,
@@ -86,6 +105,7 @@ const Products = ({viewer}: ProductsProps) => {
     if (data.shouldRefetch) {
       refetch(
         {
+          search: data.searchText,
           sortPrice: data.sortPrice,
           categories: data?.categoriesFilters,
           brands: data?.brandsFilters,
@@ -103,6 +123,7 @@ const Products = ({viewer}: ProductsProps) => {
       );
     }
   }, [
+    data.searchText,
     data.sortPrice,
     data.shouldRefetch,
     data.categoriesFilters,
@@ -112,38 +133,46 @@ const Products = ({viewer}: ProductsProps) => {
     environment,
   ]);
 
-  useEffect(() => {
-    console.log(' data.shouldRefetch: ', data.shouldRefetch);
-  }, [data.shouldRefetch]);
-
   return (
     <>
+      <DynamicView
+        flexDirection="row"
+        paddingHorizontal={16}
+        paddingVertical={8}
+        backgroundColor="#f5f5f5"
+        justifyContent="space-between">
+        <DynamicView
+          flex={1}
+          marginRight={16}
+          borderBottomColor="gray"
+          borderBottomWidth={1}>
+          <TextInput
+            style={{paddingVertical: 0}}
+            placeholder="Search Products"
+            value={text}
+            onChangeText={t => onChangeText(t)}
+          />
+        </DynamicView>
+        <DynamicPressable
+          backgroundColor="red"
+          padding={4}
+          alignItems="center"
+          justifyContent="center"
+          borderRadius={4}
+          onPress={onFiltersPress}>
+          <DynamicText color={'#fff'} fontWeight="bold">
+            Filters
+          </DynamicText>
+        </DynamicPressable>
+      </DynamicView>
       <FlatList
-        ListHeaderComponent={() => (
-          <DynamicView
-            flexDirection="row"
-            paddingHorizontal={16}
-            paddingVertical={8}
-            backgroundColor="green"
-            justifyContent="space-between">
-            <DynamicView
-              flex={1}
-              marginRight={16}
-              borderBottomColor="gray"
-              borderBottomWidth={1}>
-              <TextInput placeholder="Search Products" />
-            </DynamicView>
-            {/* use refetch when filtering */}
-            <DynamicView backgroundColor="red">
-              <Pressable onPress={onFiltersPress}>
-                <DynamicText color={'blue'}>Filters</DynamicText>
-              </Pressable>
-            </DynamicView>
-          </DynamicView>
-        )}
+        contentContainerStyle={styles.flatList}
         data={data?.products?.edges}
-        renderItem={({item}) => (
-          <Product product={item?.node as ProductFragmentGraphQL_product$key} />
+        renderItem={({item, index}) => (
+          <Product
+            key={`product:${index}`}
+            product={item?.node as ProductFragmentGraphQL_product$key}
+          />
         )}
         keyExtractor={(item, index) => `repo:${index}:${item?.cursor}`}
         ListFooterComponent={() => {
@@ -152,17 +181,35 @@ const Products = ({viewer}: ProductsProps) => {
           }
           if (hasNext) {
             return (
-              <Pressable onPress={() => loadNext(10)}>
-                <DynamicText color={'red'}>Load More</DynamicText>
-              </Pressable>
+              <DynamicPressable
+                width="100%"
+                backgroundColor="red"
+                marginTop={8}
+                borderRadius={4}
+                marginBottom={36}
+                paddingVertical={8}
+                onPress={() => loadNext(10)}>
+                <DynamicText
+                  textAlign="center"
+                  color={'#fff'}
+                  fontWeight="bold">
+                  LOAD MORE
+                </DynamicText>
+              </DynamicPressable>
             );
           }
           return null;
         }}
       />
-      {/* <Filters showFilter={!!data.showFilter} refetch={refetch} /> */}
     </>
   );
 };
 
 export default Products;
+
+const styles = StyleSheet.create({
+  flatList: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+  },
+});

@@ -1,9 +1,11 @@
 extend type Viewer {
   showFilter: Boolean
   cart: [Product]
-  brandsFilters: [String]
-  categoriesFilters: [String]
   searchText: String
   sortPrice: SORT_PRICE
   shouldRefetch: Boolean
+}
+
+extend type Product {
+  isAddedToCart: Boolean
 }

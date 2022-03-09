@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8167e56bd9fcf472f02a08e4c8be7cd8>>
+ * @generated SignedSource<<b9ba73e35254a671238af977b6ffa66c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,6 +17,7 @@ export type ProductFragmentGraphQL_product$data = {
   readonly price: string | null;
   readonly category: string | null;
   readonly display_name: string | null;
+  readonly isAddedToCart: boolean | null;
   readonly " $fragmentType": "ProductFragmentGraphQL_product";
 };
 export type ProductFragmentGraphQL_product$key = {
@@ -71,12 +72,24 @@ const node: ReaderFragment = {
       "kind": "ScalarField",
       "name": "display_name",
       "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "isAddedToCart",
+          "storageKey": null
+        }
+      ]
     }
   ],
   "type": "Product",
   "abstractKey": null
 };
 
-(node as any).hash = "07fe7b9fbf4e04f6e05bdb7e6974d59c";
+(node as any).hash = "3a6b604b87915c419221449b7dacdad6";
 
 export default node;

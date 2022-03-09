@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<892e7b68ff45c480976a5fadde213888>>
+ * @generated SignedSource<<0f81b4f98be8ab211aba3e75ed7c58cb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -139,6 +139,13 @@ v11 = {
   "kind": "ScalarField",
   "name": "display_name",
   "storageKey": null
+},
+v12 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "isAddedToCart",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -274,6 +281,12 @@ return {
                       (v10/*: any*/),
                       (v11/*: any*/),
                       {
+                        "kind": "ClientExtension",
+                        "selections": [
+                          (v12/*: any*/)
+                        ]
+                      },
+                      {
                         "alias": null,
                         "args": null,
                         "kind": "ScalarField",
@@ -317,20 +330,6 @@ return {
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "brandsFilters",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "categoriesFilters",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
                 "name": "searchText",
                 "storageKey": null
               },
@@ -361,7 +360,8 @@ return {
                   (v8/*: any*/),
                   (v9/*: any*/),
                   (v10/*: any*/),
-                  (v11/*: any*/)
+                  (v11/*: any*/),
+                  (v12/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -383,6 +383,6 @@ return {
 };
 })();
 
-(node as any).hash = "11f03d43c31dddbd9c14e87852ac80f7";
+(node as any).hash = "9bf201a8d9209941388c548a92efcf50";
 
 export default node;

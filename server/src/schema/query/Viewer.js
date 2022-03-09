@@ -68,15 +68,23 @@ const GraphQLViewerType = new GraphQLObjectType({
         },
         ...connectionArgs,
       },
-      resolve: async (_, { search, categories, brands, ...args }) => {
+      resolve: async (_, { search, sortPrice, ...args }) => {
         try {
-          console.log(
-            "JSON.STRINGIFY",
-            JSON.stringify({ search, categories, brands })
+          const result = await Product.find(
+            {
+              ...(search && {
+                display_name: { $regex: search, $options: "i" },
+              }),
+            },
+            null,
+            {
+              ...(sortPrice && {
+                sort: {
+                  price: sortPrice,
+                },
+              }),
+            }
           );
-          console.log("ARGS", JSON.stringify({ ...args }));
-
-          const result = await Product.find({});
           return connectionFromArray(result, args);
         } catch (e) {
           return null;
