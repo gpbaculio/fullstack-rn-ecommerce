@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d7b735bdbbb5fdee80b60069f40c2b13>>
+ * @generated SignedSource<<576cb27f8fd01aa7d2d38bc29ecfbe8c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,10 +9,16 @@
 // @ts-nocheck
 
 import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+export type SORT_PRICE = "ASCENDING" | "DESCENDING" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type ProductsPagination_viewer$data = {
   readonly id: string;
   readonly showFilter: boolean | null;
+  readonly brandsFilters: ReadonlyArray<string | null> | null;
+  readonly categoriesFilters: ReadonlyArray<string | null> | null;
+  readonly searchText: string | null;
+  readonly sortPrice: SORT_PRICE | null;
+  readonly shouldRefetch: boolean | null;
   readonly cart: ReadonlyArray<{
     readonly " $fragmentSpreads": FragmentRefs<"ProductFragmentGraphQL_product">;
   } | null> | null;
@@ -237,6 +243,41 @@ return {
         {
           "alias": null,
           "args": null,
+          "kind": "ScalarField",
+          "name": "brandsFilters",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "categoriesFilters",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "searchText",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "sortPrice",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "shouldRefetch",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
           "concreteType": "Product",
           "kind": "LinkedField",
           "name": "cart",
@@ -254,6 +295,6 @@ return {
 };
 })();
 
-(node as any).hash = "d5ff4b443f50da09db2b117db2d8ef70";
+(node as any).hash = "11f03d43c31dddbd9c14e87852ac80f7";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<60ea28d3cd911a6708eef283cd7ad344>>
+ * @generated SignedSource<<6815a73a8b8d334c082e08396323abcf>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -295,6 +295,17 @@ return {
             "kind": "ClientExtension",
             "selections": [
               (v1/*: any*/),
+              (v2/*: any*/),
+              (v3/*: any*/),
+              (v4/*: any*/),
+              (v5/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "shouldRefetch",
+                "storageKey": null
+              },
               {
                 "alias": null,
                 "args": null,
@@ -311,11 +322,7 @@ return {
                   (v11/*: any*/)
                 ],
                 "storageKey": null
-              },
-              (v2/*: any*/),
-              (v3/*: any*/),
-              (v4/*: any*/),
-              (v5/*: any*/)
+              }
             ]
           }
         ],

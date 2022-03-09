@@ -1,5 +1,5 @@
 import {FlatList, ActivityIndicator, Pressable, TextInput} from 'react-native';
-import React, {useCallback} from 'react';
+import React, {Suspense, useCallback, useEffect} from 'react';
 import {
   graphql,
   usePaginationFragment,
@@ -29,6 +29,11 @@ const ProductsPaginationGraphQL = graphql`
   @refetchable(queryName: "ProductsPaginationQuery") {
     id
     showFilter
+    brandsFilters
+    categoriesFilters
+    searchText
+    sortPrice
+    shouldRefetch
     cart {
       ...ProductFragmentGraphQL_product
     }
@@ -77,6 +82,40 @@ const Products = ({viewer}: ProductsProps) => {
     });
   }, [commitLocalUpdate, environment]);
 
+  useEffect(() => {
+    if (data.shouldRefetch) {
+      refetch(
+        {
+          sortPrice: data.sortPrice,
+          categories: data?.categoriesFilters,
+          brands: data?.brandsFilters,
+        },
+        {
+          onComplete: () => {
+            commitLocalUpdate(environment, store => {
+              const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+              if (viewerProxy) {
+                viewerProxy.setValue(false, 'shouldRefetch');
+              }
+            });
+          },
+        },
+      );
+    }
+  }, [
+    data.sortPrice,
+    data.shouldRefetch,
+    data.categoriesFilters,
+    data.brandsFilters,
+    refetch,
+    commitLocalUpdate,
+    environment,
+  ]);
+
+  useEffect(() => {
+    console.log(' data.shouldRefetch: ', data.shouldRefetch);
+  }, [data.shouldRefetch]);
+
   return (
     <>
       <FlatList
@@ -121,7 +160,7 @@ const Products = ({viewer}: ProductsProps) => {
           return null;
         }}
       />
-      <Filters showFilter={!!data.showFilter} />
+      {/* <Filters showFilter={!!data.showFilter} refetch={refetch} /> */}
     </>
   );
 };

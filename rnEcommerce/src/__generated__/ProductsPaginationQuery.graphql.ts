@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3f921a15e8ffbeec8ce0da569367793a>>
+ * @generated SignedSource<<892e7b68ff45c480976a5fadde213888>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -316,6 +316,41 @@ return {
               {
                 "alias": null,
                 "args": null,
+                "kind": "ScalarField",
+                "name": "brandsFilters",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "categoriesFilters",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "searchText",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "sortPrice",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "shouldRefetch",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
                 "concreteType": "Product",
                 "kind": "LinkedField",
                 "name": "cart",
@@ -348,6 +383,6 @@ return {
 };
 })();
 
-(node as any).hash = "d5ff4b443f50da09db2b117db2d8ef70";
+(node as any).hash = "11f03d43c31dddbd9c14e87852ac80f7";
 
 export default node;

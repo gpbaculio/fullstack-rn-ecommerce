@@ -11,6 +11,7 @@ import {
   ErrorBoundaryWithRetry,
   DynamicView,
   DynamicText,
+  DynamicPressable,
 } from '../../components';
 
 import {HomeQuery} from '../../__generated__/HomeQuery.graphql';
@@ -37,8 +38,8 @@ const HomeQueryGraphQL = graphql`
   }
 `;
 
-const Home = () => {
-  const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {});
+const Home = ({fetchKey}: {fetchKey: number}) => {
+  const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {fetchKey});
   const environment = useRelayEnvironment();
   useEffect(() => {
     // initialize local state
@@ -54,6 +55,7 @@ const Home = () => {
       const showFilterProxy = viewerProxy.getValue('showFilter');
       const searchTextProxy = viewerProxy.getValue('searchText');
       const sortPriceProxy = viewerProxy.getValue('sortPrice');
+      const shouldRefetchProxy = viewerProxy.getValue('shouldRefetch');
 
       if (
         viewerProxy &&
@@ -62,7 +64,8 @@ const Home = () => {
         categoriesFiltersProxy === undefined &&
         showFilterProxy === undefined &&
         searchTextProxy === undefined &&
-        sortPriceProxy === undefined
+        sortPriceProxy === undefined &&
+        shouldRefetchProxy === undefined
       ) {
         viewerProxy.setLinkedRecords([], 'cart');
         viewerProxy.setValue([], 'brandsFilters');
@@ -70,38 +73,36 @@ const Home = () => {
         viewerProxy.setValue(false, 'showFilter');
         viewerProxy.setValue('', 'searchText');
         viewerProxy.setValue(null, 'sortPrice');
+        viewerProxy.setValue(false, 'shouldRefetch');
       }
     });
   }, [commitLocalUpdate, environment]);
 
   return (
-    <ErrorBoundaryWithRetry
-      fallback={({error, retry}) => (
-        <DynamicView flex={1} alignItems="center" justifyContent="center">
-          <DynamicText>{error}</DynamicText>
+    <Suspense
+      fallback={
+        <DynamicView flex={1} justifyContent="center" alignItems="center">
+          <ActivityIndicator size="large" color="#868f99" />
         </DynamicView>
-      )}>
-      {({fetchKey}) => (
-        <Suspense
-          fallback={
-            <DynamicView flex={1} justifyContent="center" alignItems="center">
-              <ActivityIndicator size="small" color="#868f99" />
-            </DynamicView>
-          }>
-          {!!viewer && <Products viewer={viewer} />}
-        </Suspense>
-      )}
-    </ErrorBoundaryWithRetry>
+      }>
+      {!!viewer && <Products viewer={viewer} />}
+    </Suspense>
   );
 };
 
 export default () => (
-  <Suspense
-    fallback={
-      <DynamicView flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="small" color="#868f99" />
+  <ErrorBoundaryWithRetry
+    fallback={({error, retry}) => (
+      <DynamicView flex={1} alignItems="center" justifyContent="center">
+        <DynamicText color="red">{error}</DynamicText>
+        <DynamicPressable
+          onPress={retry}
+          borderRadius={4}
+          backgroundColor="red">
+          <DynamicText color="#fff">RETRY</DynamicText>
+        </DynamicPressable>
       </DynamicView>
-    }>
-    <Home />
-  </Suspense>
+    )}>
+    {({fetchKey}) => <Home fetchKey={fetchKey} />}
+  </ErrorBoundaryWithRetry>
 );

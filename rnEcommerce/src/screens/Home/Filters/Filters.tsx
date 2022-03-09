@@ -6,7 +6,12 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 import {commitLocalUpdate} from 'relay-runtime';
-import {useRelayEnvironment} from 'react-relay';
+import {
+  RefetchFnDynamic,
+  useRelayEnvironment,
+  graphql,
+  useLazyLoadQuery,
+} from 'react-relay';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {
@@ -22,12 +27,28 @@ import CategoriesFilter from './CategoriesFilter';
 import PriceFilters from './PriceFilters';
 import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
 
+import {FiltersQuery} from '../../../__generated__/FiltersQuery.graphql';
+
 interface FiltersProps {
   showFilter: boolean;
 }
+const FiltersGraphQLQuery = graphql`
+  query FiltersQuery {
+    viewer {
+      id
+      showFilter
+      brandsFilters
+      categoriesFilters
+      searchText
+      sortPrice
+    }
+  }
+`;
 
 const Filters = ({showFilter}: FiltersProps) => {
   const environment = useRelayEnvironment();
+
+  const {viewer} = useLazyLoadQuery<FiltersQuery>(FiltersGraphQLQuery, {});
   const {bottom} = useSafeAreaInsets();
   const {width} = useWindowDimensions();
   const isMounted = useSharedValue(false);
@@ -81,6 +102,17 @@ const Filters = ({showFilter}: FiltersProps) => {
     });
   }, [commitLocalUpdate, environment]);
 
+  const onApplyPress = useCallback(() => {
+    commitLocalUpdate(environment, store => {
+      const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+
+      if (viewerProxy) {
+        viewerProxy.setValue(true, 'shouldRefetch');
+        viewerProxy.setValue(false, 'showFilter');
+      }
+    });
+  }, [commitLocalUpdate, environment]);
+
   return (
     <>
       <DynamicAnimatedPressable
@@ -126,19 +158,10 @@ const Filters = ({showFilter}: FiltersProps) => {
           backgroundColor="#1f1d2b"
           paddingVertical={12}>
           <DynamicPressable
-            padding={6}
+            paddingVertical={10}
+            onPress={onApplyPress}
             alignItems="center"
-            width="48%"
-            backgroundColor={'red'}
-            borderRadius={4}>
-            <DynamicText fontWeight="bold" color="#fff">
-              RESET
-            </DynamicText>
-          </DynamicPressable>
-          <DynamicPressable
-            padding={6}
-            alignItems="center"
-            width="48%"
+            width="100%"
             backgroundColor={'red'}
             borderRadius={4}>
             <DynamicText fontWeight="bold" color="#fff">
