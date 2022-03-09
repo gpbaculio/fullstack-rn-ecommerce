@@ -1,4 +1,4 @@
-import {useWindowDimensions, View} from 'react-native';
+import {Platform} from 'react-native';
 import React, {useCallback, useState} from 'react';
 import {FlatList} from 'react-native-gesture-handler';
 import {
@@ -11,12 +11,11 @@ import {
 import {
   DynamicAnimatedPressable,
   DynamicAnimatedView,
-  DynamicPressable,
   DynamicText,
   DynamicView,
-} from '../components';
+} from '../../../components';
 
-import {CategoriesFilterQuery} from '../__generated__/CategoriesFilterQuery.graphql';
+import {BrandsFilterQuery} from '../../../__generated__/BrandsFilterQuery.graphql';
 import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
@@ -24,18 +23,19 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import FilterHeader from './FilterHeader';
-import {HomeQuery} from '../__generated__/HomeQuery.graphql';
+import {Primitive} from 'relay-runtime/lib/store/RelayStoreTypes';
 
-const CategoriesFilterGraphQLQuery = graphql`
-  query CategoriesFilterQuery {
+const BrandsFilterGraphQLQuery = graphql`
+  query BrandsFilterQuery {
     viewer {
       id
+      brandsFilters
       products {
         edges {
           cursor
           node {
             id
-            category
+            brand
           }
         }
       }
@@ -43,24 +43,19 @@ const CategoriesFilterGraphQLQuery = graphql`
   }
 `;
 
-interface CategoryEdge {
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+interface BrandEdge {
   readonly cursor: string;
   readonly node: {
     readonly id: string;
-    readonly category: string | null;
+    readonly brand: string | null;
   } | null;
 }
 
-interface CategoriesFilter {
-  categoriesFilters: string[];
-  handleCategoriesFilters: (c: string) => void;
-}
-const CategoriesFilter = ({
-  categoriesFilters,
-  handleCategoriesFilters,
-}: CategoriesFilter) => {
-  const {viewer} = useLazyLoadQuery<CategoriesFilterQuery>(
-    CategoriesFilterGraphQLQuery,
+const BrandsFilter = () => {
+  const environment = useRelayEnvironment();
+  const {viewer} = useLazyLoadQuery<BrandsFilterQuery>(
+    BrandsFilterGraphQLQuery,
     {},
   );
   const [showFilters, setShowFilters] = useState(false);
@@ -78,11 +73,17 @@ const CategoriesFilter = ({
   );
 
   useAnimatedReaction(
-    () => showFilters,
-    show => {
-      flatListHeight.value = show ? 335 : 0;
+    () => {
+      return showFilters;
     },
-    [showFilters, flatListHeight.value],
+    show => {
+      flatListHeight.value = show
+        ? Platform.OS === 'ios'
+          ? 1800 - 100
+          : 1800
+        : 0;
+    },
+    [showFilters, flatListHeight.value, Platform.OS],
   );
 
   const itemStyle = useAnimatedStyle(
@@ -93,63 +94,83 @@ const CategoriesFilter = ({
     }),
     [showFilters, withTiming],
   );
+  const onBrandPress = useCallback(
+    (brand: string) => {
+      commitLocalUpdate(environment, store => {
+        const viewerProxy = store
+          .getRoot()
+          .getLinkedRecord<BrandsFilterQuery['response']['viewer']>('viewer');
+        if (viewerProxy) {
+          const brandsFilters = viewerProxy.getValue(
+            'brandsFilters',
+          ) as Primitive[];
+
+          if (brandsFilters.includes(brand)) {
+            viewerProxy.setValue(
+              brandsFilters.filter(i => i !== brand),
+              'brandsFilters',
+            );
+          } else {
+            viewerProxy.setValue([...brandsFilters, brand], 'brandsFilters');
+          }
+        }
+      });
+    },
+    [commitLocalUpdate, environment],
+  );
 
   return (
     <DynamicView>
       <FilterHeader
-        title="CATEGORIES"
+        title="BRANDS"
         length={
           viewer?.products?.edges?.filter(
             (value, index, self) =>
-              self.findIndex(
-                v => v?.node?.category === value?.node?.category,
-              ) === index,
+              self.findIndex(v => v?.node?.brand === value?.node?.brand) ===
+              index,
           ).length
         }
         onShowHandlerPress={onShowFiltersPress}
         showHandlerText={showFilters ? 'HIDE' : 'SHOW'}
       />
       <DynamicAnimatedView
+        style={filtersStyle}
         flexDirection="row"
         flexWrap="wrap"
         justifyContent="space-between"
-        paddingTop={8}
-        style={filtersStyle}>
+        paddingTop={8}>
         {viewer?.products?.edges
           ?.filter(
             (value, index, self) =>
-              self.findIndex(
-                v => v?.node?.category === value?.node?.category,
-              ) === index,
+              self.findIndex(v => v?.node?.brand === value?.node?.brand) ===
+              index,
           )
           .map((item, index) => (
             <DynamicAnimatedPressable
               onPress={() =>
-                handleCategoriesFilters(
-                  (item as CategoryEdge)?.node?.category as string,
-                )
+                onBrandPress((item as BrandEdge)?.node?.brand as string)
               }
-              key={`${index}:${(item as CategoryEdge)?.node?.id}`}
+              key={`${index}:${(item as BrandEdge)?.node?.id}`}
               marginBottom={8}
               width={'32%'}
-              backgroundColor={
-                categoriesFilters.includes(
-                  (item as CategoryEdge)?.node?.category as string,
-                )
-                  ? 'red'
-                  : 'transparent'
-              }
               justifyContent="center"
               alignItems="center"
               borderColor="red"
               borderRadius={4}
+              backgroundColor={
+                viewer.brandsFilters?.includes(
+                  (item as BrandEdge)?.node?.brand as string,
+                )
+                  ? 'red'
+                  : 'transparent'
+              }
               style={itemStyle}>
               <DynamicText
                 fontSize={10}
                 textAlign="center"
                 fontWeight="bold"
                 color="#fff">
-                {(item as CategoryEdge)?.node?.category}
+                {(item as BrandEdge)?.node?.brand}
               </DynamicText>
             </DynamicAnimatedPressable>
           ))}
@@ -158,4 +179,4 @@ const CategoriesFilter = ({
   );
 };
 
-export default CategoriesFilter;
+export default BrandsFilter;

@@ -1,4 +1,9 @@
-const { GraphQLObjectType, GraphQLList, GraphQLString } = require("graphql");
+const {
+  GraphQLObjectType,
+  GraphQLList,
+  GraphQLString,
+  GraphQLEnumType,
+} = require("graphql");
 const {
   globalIdField,
   connectionDefinitions,
@@ -52,16 +57,25 @@ const GraphQLViewerType = new GraphQLObjectType({
         brands: {
           type: new GraphQLList(GraphQLString),
         },
+        sortPrice: {
+          type: new GraphQLEnumType({
+            name: "SORT_PRICE",
+            values: {
+              ASCENDING: { value: "ascending" },
+              DESCENDING: { value: "descending" },
+            },
+          }),
+        },
         ...connectionArgs,
       },
       resolve: async (_, { search, categories, brands, ...args }) => {
         try {
-          // console.log(
-          //   "JSON.STRINGIFY",
-          //   JSON.stringify({ search, categories, brands })
-          // );
-          // console.log("ARGS", JSON.stringify({ ...args }));
-          console.log("test");
+          console.log(
+            "JSON.STRINGIFY",
+            JSON.stringify({ search, categories, brands })
+          );
+          console.log("ARGS", JSON.stringify({ ...args }));
+
           const result = await Product.find({});
           return connectionFromArray(result, args);
         } catch (e) {

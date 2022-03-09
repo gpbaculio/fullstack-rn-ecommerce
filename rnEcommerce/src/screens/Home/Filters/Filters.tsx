@@ -1,5 +1,5 @@
 import {ScrollView, useWindowDimensions} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   useAnimatedStyle,
   useSharedValue,
@@ -7,6 +7,7 @@ import {
 } from 'react-native-reanimated';
 import {commitLocalUpdate} from 'relay-runtime';
 import {useRelayEnvironment} from 'react-relay';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {
   DynamicAnimatedPressable,
@@ -14,12 +15,12 @@ import {
   DynamicPressable,
   DynamicText,
   DynamicView,
-} from '../components';
+} from '../../../components';
 
-import {HomeQuery} from '../__generated__/HomeQuery.graphql';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import BrandsFilter from './BrandsFilter';
 import CategoriesFilter from './CategoriesFilter';
+import PriceFilters from './PriceFilters';
+import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
 
 interface FiltersProps {
   showFilter: boolean;
@@ -27,33 +28,10 @@ interface FiltersProps {
 
 const Filters = ({showFilter}: FiltersProps) => {
   const environment = useRelayEnvironment();
-  const {top, bottom} = useSafeAreaInsets();
+  const {bottom} = useSafeAreaInsets();
   const {width} = useWindowDimensions();
   const isMounted = useSharedValue(false);
   const animateHide = useSharedValue(false);
-  const [brandsFilters, setBrandsFilters] = useState<string[]>([]);
-  const [categoriesFilters, setCategoriesFilters] = useState<string[]>([]);
-  const [priceFilters, handlePriceFilters] = useState<string[]>([]);
-
-  const handleCategoriesFilters = useCallback(
-    (category: string) => {
-      setCategoriesFilters(v => {
-        if (v.includes(category)) return v.filter(i => i !== category);
-        return [...v, category];
-      });
-    },
-    [setCategoriesFilters],
-  );
-
-  const handleBrandsFilters = useCallback(
-    (brand: string) => {
-      setBrandsFilters(v => {
-        if (v.includes(brand)) return v.filter(i => i !== brand);
-        return [...v, brand];
-      });
-    },
-    [setBrandsFilters],
-  );
 
   const filterStyle = useAnimatedStyle(
     () => ({
@@ -124,59 +102,16 @@ const Filters = ({showFilter}: FiltersProps) => {
         position="absolute"
         zIndex={4}
         elevation={4}
-        paddingTop={top}
         paddingBottom={bottom}
         padding={12}
         style={filterStyle}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <DynamicView>
-            <DynamicText color={'#fff'} fontWeight="bold">
-              PRICE
-            </DynamicText>
-            <DynamicView
-              flexDirection="row"
-              width="100%"
-              marginTop={6}
-              justifyContent="space-around">
-              <DynamicPressable
-                borderColor={'red'}
-                borderWidth={1}
-                borderRadius={4}
-                paddingVertical={3}
-                paddingHorizontal={6}
-                flex={1}
-                marginRight={6}
-                alignItems="center">
-                <DynamicText color={'#fff'} fontWeight="bold">
-                  High to Low
-                </DynamicText>
-              </DynamicPressable>
-              <DynamicPressable
-                borderColor={'red'}
-                borderWidth={1}
-                borderRadius={4}
-                paddingVertical={3}
-                paddingHorizontal={6}
-                flex={1}
-                marginLeft={6}
-                alignItems="center">
-                <DynamicText color={'#fff'} fontWeight="bold">
-                  Low to High
-                </DynamicText>
-              </DynamicPressable>
-            </DynamicView>
+          <PriceFilters />
+          <DynamicView marginTop={16}>
+            <CategoriesFilter />
           </DynamicView>
           <DynamicView marginTop={16}>
-            <CategoriesFilter
-              categoriesFilters={categoriesFilters}
-              handleCategoriesFilters={handleCategoriesFilters}
-            />
-          </DynamicView>
-          <DynamicView marginTop={16}>
-            <BrandsFilter
-              brandsFilters={brandsFilters}
-              handleBrandsFilters={handleBrandsFilters}
-            />
+            <BrandsFilter />
           </DynamicView>
         </ScrollView>
         <DynamicView
@@ -190,7 +125,7 @@ const Filters = ({showFilter}: FiltersProps) => {
           borderTopColor="red"
           backgroundColor="#1f1d2b"
           paddingVertical={12}>
-          <DynamicView
+          <DynamicPressable
             padding={6}
             alignItems="center"
             width="48%"
@@ -199,8 +134,8 @@ const Filters = ({showFilter}: FiltersProps) => {
             <DynamicText fontWeight="bold" color="#fff">
               RESET
             </DynamicText>
-          </DynamicView>
-          <DynamicView
+          </DynamicPressable>
+          <DynamicPressable
             padding={6}
             alignItems="center"
             width="48%"
@@ -209,7 +144,7 @@ const Filters = ({showFilter}: FiltersProps) => {
             <DynamicText fontWeight="bold" color="#fff">
               APPLY
             </DynamicText>
-          </DynamicView>
+          </DynamicPressable>
         </DynamicView>
       </DynamicAnimatedView>
     </>

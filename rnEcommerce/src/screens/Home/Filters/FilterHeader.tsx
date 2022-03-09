@@ -1,5 +1,5 @@
 import React from 'react';
-import {DynamicPressable, DynamicText, DynamicView} from '../components';
+import {DynamicPressable, DynamicText, DynamicView} from '../../../components';
 
 interface FilterHeaderProps {
   title: string;

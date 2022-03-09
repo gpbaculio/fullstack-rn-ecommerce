@@ -4,4 +4,5 @@ extend type Viewer {
   brandsFilters: [String]
   categoriesFilters: [String]
   searchText: String
+  sortPrice: SORT_PRICE
 }

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b025d55b6a77c04df34b90997cb7a4c3>>
+ * @generated SignedSource<<a5f88904942d54b22eab47e0fa277f05>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,15 +9,16 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
-export type NavigationQuery$variables = {};
-export type NavigationQuery$data = {
+export type SORT_PRICE = "ASCENDING" | "DESCENDING" | "%future added value";
+export type PriceFiltersQuery$variables = {};
+export type PriceFiltersQuery$data = {
   readonly viewer: {
-    readonly showFilter: boolean | null;
+    readonly sortPrice: SORT_PRICE | null;
   } | null;
 };
-export type NavigationQuery = {
-  variables: NavigationQuery$variables;
-  response: NavigationQuery$data;
+export type PriceFiltersQuery = {
+  variables: PriceFiltersQuery$variables;
+  response: PriceFiltersQuery$data;
 };
 
 const node: ConcreteRequest = (function(){
@@ -28,7 +29,7 @@ var v0 = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "showFilter",
+      "name": "sortPrice",
       "storageKey": null
     }
   ]
@@ -38,7 +39,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "NavigationQuery",
+    "name": "PriceFiltersQuery",
     "selections": [
       {
         "alias": null,
@@ -60,7 +61,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "NavigationQuery",
+    "name": "PriceFiltersQuery",
     "selections": [
       {
         "alias": null,
@@ -84,16 +85,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9aa020524563652be81bf1407bc005e7",
+    "cacheID": "8cc8a54d6f607ec553637007774a9d14",
     "id": null,
     "metadata": {},
-    "name": "NavigationQuery",
+    "name": "PriceFiltersQuery",
     "operationKind": "query",
-    "text": "query NavigationQuery {\n  viewer {\n    id\n  }\n}\n"
+    "text": "query PriceFiltersQuery {\n  viewer {\n    id\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "97eb85e34c3c857045ee9f2b712adb3f";
+(node as any).hash = "bbb4631d3e870b263d76e0466512b6a5";
 
 export default node;

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6cd1b612b5a2ade4dee6127fe5369e6e>>
+ * @generated SignedSource<<7a3483e2b27296d3b29449e78bd18f12>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,6 +13,7 @@ export type BrandsFilterQuery$variables = {};
 export type BrandsFilterQuery$data = {
   readonly viewer: {
     readonly id: string;
+    readonly brandsFilters: ReadonlyArray<string | null> | null;
     readonly products: {
       readonly edges: ReadonlyArray<{
         readonly cursor: string;
@@ -94,6 +95,18 @@ v1 = [
           }
         ],
         "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "brandsFilters",
+            "storageKey": null
+          }
+        ]
       }
     ],
     "storageKey": null
@@ -127,6 +140,6 @@ return {
 };
 })();
 
-(node as any).hash = "3537d59cdcda3cbc577a784055d4ee9b";
+(node as any).hash = "2ee5db4ec8220ad7d293953f10c78381";
 
 export default node;

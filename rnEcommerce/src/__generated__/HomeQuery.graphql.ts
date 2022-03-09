@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4b292906ed99ff57e2940813652a613a>>
+ * @generated SignedSource<<60ea28d3cd911a6708eef283cd7ad344>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,14 +10,19 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type SORT_PRICE = "ASCENDING" | "DESCENDING" | "%future added value";
 export type HomeQuery$variables = {};
 export type HomeQuery$data = {
   readonly viewer: {
     readonly id: string;
+    readonly showFilter: boolean | null;
+    readonly brandsFilters: ReadonlyArray<string | null> | null;
+    readonly categoriesFilters: ReadonlyArray<string | null> | null;
+    readonly searchText: string | null;
+    readonly sortPrice: SORT_PRICE | null;
     readonly cart: ReadonlyArray<{
       readonly " $fragmentSpreads": FragmentRefs<"ProductFragmentGraphQL_product">;
     } | null> | null;
-    readonly showFilter: boolean | null;
     readonly " $fragmentSpreads": FragmentRefs<"ProductsPagination_viewer">;
   } | null;
 };
@@ -41,42 +46,70 @@ v1 = {
   "name": "showFilter",
   "storageKey": null
 },
-v2 = [
-  {
-    "kind": "Literal",
-    "name": "first",
-    "value": 10
-  }
-],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "brandsFilters",
+  "storageKey": null
+},
 v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "brand",
+  "name": "categoriesFilters",
   "storageKey": null
 },
 v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "barCode",
+  "name": "searchText",
   "storageKey": null
 },
 v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
+  "name": "sortPrice",
+  "storageKey": null
+},
+v6 = [
+  {
+    "kind": "Literal",
+    "name": "first",
+    "value": 10
+  }
+],
+v7 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "brand",
+  "storageKey": null
+},
+v8 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "barCode",
+  "storageKey": null
+},
+v9 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
   "name": "price",
   "storageKey": null
 },
-v6 = {
+v10 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "category",
   "storageKey": null
 },
-v7 = {
+v11 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -107,6 +140,11 @@ return {
           {
             "kind": "ClientExtension",
             "selections": [
+              (v1/*: any*/),
+              (v2/*: any*/),
+              (v3/*: any*/),
+              (v4/*: any*/),
+              (v5/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -122,8 +160,7 @@ return {
                   }
                 ],
                 "storageKey": null
-              },
-              (v1/*: any*/)
+              }
             ]
           }
         ],
@@ -150,7 +187,7 @@ return {
           (v0/*: any*/),
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v6/*: any*/),
             "concreteType": "ProductsConnection",
             "kind": "LinkedField",
             "name": "products",
@@ -219,11 +256,11 @@ return {
                     "plural": false,
                     "selections": [
                       (v0/*: any*/),
-                      (v3/*: any*/),
-                      (v4/*: any*/),
-                      (v5/*: any*/),
-                      (v6/*: any*/),
                       (v7/*: any*/),
+                      (v8/*: any*/),
+                      (v9/*: any*/),
+                      (v10/*: any*/),
+                      (v11/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -242,11 +279,12 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v6/*: any*/),
             "filters": [
               "search",
               "categories",
-              "brands"
+              "brands",
+              "sortPrice"
             ],
             "handle": "connection",
             "key": "ProductsPagination_viewer_products",
@@ -256,6 +294,7 @@ return {
           {
             "kind": "ClientExtension",
             "selections": [
+              (v1/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -265,15 +304,18 @@ return {
                 "plural": true,
                 "selections": [
                   (v0/*: any*/),
-                  (v3/*: any*/),
-                  (v4/*: any*/),
-                  (v5/*: any*/),
-                  (v6/*: any*/),
-                  (v7/*: any*/)
+                  (v7/*: any*/),
+                  (v8/*: any*/),
+                  (v9/*: any*/),
+                  (v10/*: any*/),
+                  (v11/*: any*/)
                 ],
                 "storageKey": null
               },
-              (v1/*: any*/)
+              (v2/*: any*/),
+              (v3/*: any*/),
+              (v4/*: any*/),
+              (v5/*: any*/)
             ]
           }
         ],
@@ -292,6 +334,6 @@ return {
 };
 })();
 
-(node as any).hash = "ed2570b32171efb0df31909b32896a59";
+(node as any).hash = "89240fa733ab97af04882b7f5761c35e";
 
 export default node;

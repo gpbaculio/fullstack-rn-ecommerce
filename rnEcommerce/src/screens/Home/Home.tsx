@@ -1,6 +1,11 @@
-import React, {Suspense} from 'react';
+import React, {Suspense, useEffect} from 'react';
 import {ActivityIndicator} from 'react-native';
-import {graphql, useLazyLoadQuery, commitLocalUpdate} from 'react-relay';
+import {
+  graphql,
+  useLazyLoadQuery,
+  commitLocalUpdate,
+  useRelayEnvironment,
+} from 'react-relay';
 
 import {
   ErrorBoundaryWithRetry,
@@ -18,6 +23,11 @@ const HomeQueryGraphQL = graphql`
   query HomeQuery {
     viewer {
       id
+      showFilter
+      brandsFilters
+      categoriesFilters
+      searchText
+      sortPrice
       cart {
         ...ProductFragmentGraphQL_product
       }
@@ -27,22 +37,42 @@ const HomeQueryGraphQL = graphql`
   }
 `;
 
-// initialize local state
-
-commitLocalUpdate(environment, store => {
-  const viewerProxy = store
-    .getRoot()
-    .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
-
-  viewerProxy.setLinkedRecords([], 'cart');
-  viewerProxy.setLinkedRecords([], 'brandsFilters');
-  viewerProxy.setLinkedRecords([], 'categoriesFilters');
-  viewerProxy.setValue(false, 'showFilter');
-  viewerProxy.setValue('', 'searchText');
-});
-
 const Home = () => {
   const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {});
+  const environment = useRelayEnvironment();
+  useEffect(() => {
+    // initialize local state
+
+    commitLocalUpdate(environment, store => {
+      const viewerProxy = store
+        .getRoot()
+        .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
+
+      const cartProxy = viewerProxy.getValue('cart');
+      const brandsFiltersProxy = viewerProxy.getValue('brandsFilters');
+      const categoriesFiltersProxy = viewerProxy.getValue('categoriesFilters');
+      const showFilterProxy = viewerProxy.getValue('showFilter');
+      const searchTextProxy = viewerProxy.getValue('searchText');
+      const sortPriceProxy = viewerProxy.getValue('sortPrice');
+
+      if (
+        viewerProxy &&
+        brandsFiltersProxy === undefined &&
+        cartProxy === undefined &&
+        categoriesFiltersProxy === undefined &&
+        showFilterProxy === undefined &&
+        searchTextProxy === undefined &&
+        sortPriceProxy === undefined
+      ) {
+        viewerProxy.setLinkedRecords([], 'cart');
+        viewerProxy.setValue([], 'brandsFilters');
+        viewerProxy.setValue([], 'categoriesFilters');
+        viewerProxy.setValue(false, 'showFilter');
+        viewerProxy.setValue('', 'searchText');
+        viewerProxy.setValue(null, 'sortPrice');
+      }
+    });
+  }, [commitLocalUpdate, environment]);
 
   return (
     <ErrorBoundaryWithRetry
@@ -51,20 +81,16 @@ const Home = () => {
           <DynamicText>{error}</DynamicText>
         </DynamicView>
       )}>
-      {({fetchKey}) => {
-        // If we have retried, use the new `retryQueryRef` provided
-        // by the Error Boundary
-        return (
-          <Suspense
-            fallback={
-              <DynamicView flex={1} justifyContent="center" alignItems="center">
-                <ActivityIndicator size="small" color="#868f99" />
-              </DynamicView>
-            }>
-            {!!viewer && <Products viewer={viewer} />}
-          </Suspense>
-        );
-      }}
+      {({fetchKey}) => (
+        <Suspense
+          fallback={
+            <DynamicView flex={1} justifyContent="center" alignItems="center">
+              <ActivityIndicator size="small" color="#868f99" />
+            </DynamicView>
+          }>
+          {!!viewer && <Products viewer={viewer} />}
+        </Suspense>
+      )}
     </ErrorBoundaryWithRetry>
   );
 };

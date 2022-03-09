@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<d99b222740194af2bd3de78e08eb78ad>>
+ * @generated SignedSource<<3f921a15e8ffbeec8ce0da569367793a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,12 +10,14 @@
 
 import { ConcreteRequest, Query } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
+export type SORT_PRICE = "ASCENDING" | "DESCENDING" | "%future added value";
 export type ProductsPaginationQuery$variables = {
   brands?: ReadonlyArray<string | null> | null;
   categories?: ReadonlyArray<string | null> | null;
   count?: number | null;
   cursor?: string | null;
   search?: string | null;
+  sortPrice?: SORT_PRICE | null;
 };
 export type ProductsPaginationQuery$data = {
   readonly viewer: {
@@ -53,6 +55,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "search"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "sortPrice"
   }
 ],
 v1 = {
@@ -71,13 +78,18 @@ v3 = {
   "variableName": "search"
 },
 v4 = {
+  "kind": "Variable",
+  "name": "sortPrice",
+  "variableName": "sortPrice"
+},
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v5 = [
+v6 = [
   {
     "kind": "Variable",
     "name": "after",
@@ -90,37 +102,38 @@ v5 = [
     "name": "first",
     "variableName": "count"
   },
-  (v3/*: any*/)
+  (v3/*: any*/),
+  (v4/*: any*/)
 ],
-v6 = {
+v7 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "brand",
   "storageKey": null
 },
-v7 = {
+v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "barCode",
   "storageKey": null
 },
-v8 = {
+v9 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "price",
   "storageKey": null
 },
-v9 = {
+v10 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "category",
   "storageKey": null
 },
-v10 = {
+v11 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -156,7 +169,8 @@ return {
                 "name": "cursor",
                 "variableName": "cursor"
               },
-              (v3/*: any*/)
+              (v3/*: any*/),
+              (v4/*: any*/)
             ],
             "kind": "FragmentSpread",
             "name": "ProductsPagination_viewer"
@@ -182,10 +196,10 @@ return {
         "name": "viewer",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
+          (v5/*: any*/),
           {
             "alias": null,
-            "args": (v5/*: any*/),
+            "args": (v6/*: any*/),
             "concreteType": "ProductsConnection",
             "kind": "LinkedField",
             "name": "products",
@@ -253,12 +267,12 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v4/*: any*/),
-                      (v6/*: any*/),
+                      (v5/*: any*/),
                       (v7/*: any*/),
                       (v8/*: any*/),
                       (v9/*: any*/),
                       (v10/*: any*/),
+                      (v11/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -277,11 +291,12 @@ return {
           },
           {
             "alias": null,
-            "args": (v5/*: any*/),
+            "args": (v6/*: any*/),
             "filters": [
               "search",
               "categories",
-              "brands"
+              "brands",
+              "sortPrice"
             ],
             "handle": "connection",
             "key": "ProductsPagination_viewer_products",
@@ -294,25 +309,25 @@ return {
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "Product",
-                "kind": "LinkedField",
-                "name": "cart",
-                "plural": true,
-                "selections": [
-                  (v4/*: any*/),
-                  (v6/*: any*/),
-                  (v7/*: any*/),
-                  (v8/*: any*/),
-                  (v9/*: any*/),
-                  (v10/*: any*/)
-                ],
+                "kind": "ScalarField",
+                "name": "showFilter",
                 "storageKey": null
               },
               {
                 "alias": null,
                 "args": null,
-                "kind": "ScalarField",
-                "name": "showFilter",
+                "concreteType": "Product",
+                "kind": "LinkedField",
+                "name": "cart",
+                "plural": true,
+                "selections": [
+                  (v5/*: any*/),
+                  (v7/*: any*/),
+                  (v8/*: any*/),
+                  (v9/*: any*/),
+                  (v10/*: any*/),
+                  (v11/*: any*/)
+                ],
                 "storageKey": null
               }
             ]
@@ -323,16 +338,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "068dbb46b66cb613716e4c065d18b583",
+    "cacheID": "3a308d963581dd0b7e8edc7975647d8b",
     "id": null,
     "metadata": {},
     "name": "ProductsPaginationQuery",
     "operationKind": "query",
-    "text": "query ProductsPaginationQuery(\n  $brands: [String]\n  $categories: [String]\n  $count: Int = 10\n  $cursor: String = null\n  $search: String\n) {\n  viewer {\n    ...ProductsPagination_viewer_4iaQZM\n    id\n  }\n}\n\nfragment ProductFragmentGraphQL_product on Product {\n  id\n  brand\n  barCode\n  price\n  category\n  display_name\n}\n\nfragment ProductsPagination_viewer_4iaQZM on Viewer {\n  id\n  products(first: $count, after: $cursor, search: $search, categories: $categories, brands: $brands) {\n    pageInfo {\n      startCursor\n      endCursor\n      hasNextPage\n      hasPreviousPage\n    }\n    edges {\n      cursor\n      node {\n        id\n        ...ProductFragmentGraphQL_product\n        __typename\n      }\n    }\n  }\n}\n"
+    "text": "query ProductsPaginationQuery(\n  $brands: [String]\n  $categories: [String]\n  $count: Int = 10\n  $cursor: String = null\n  $search: String\n  $sortPrice: SORT_PRICE\n) {\n  viewer {\n    ...ProductsPagination_viewer_1kU1NH\n    id\n  }\n}\n\nfragment ProductFragmentGraphQL_product on Product {\n  id\n  brand\n  barCode\n  price\n  category\n  display_name\n}\n\nfragment ProductsPagination_viewer_1kU1NH on Viewer {\n  id\n  products(first: $count, after: $cursor, search: $search, categories: $categories, brands: $brands, sortPrice: $sortPrice) {\n    pageInfo {\n      startCursor\n      endCursor\n      hasNextPage\n      hasPreviousPage\n    }\n    edges {\n      cursor\n      node {\n        id\n        ...ProductFragmentGraphQL_product\n        __typename\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "e074d879b20e9355ec5b29f92059ea20";
+(node as any).hash = "d5ff4b443f50da09db2b117db2d8ef70";
 
 export default node;

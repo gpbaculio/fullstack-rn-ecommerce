@@ -11,6 +11,7 @@ type Viewer {
     search: String
     categories: [String]
     brands: [String]
+    sortPrice: SORT_PRICE
 
     """
     Returns the items in the list that come after the specified cursor.
@@ -99,4 +100,9 @@ type Product {
   price: String
   brand: String
   category: String
+}
+
+enum SORT_PRICE {
+  ASCENDING
+  DESCENDING
 }

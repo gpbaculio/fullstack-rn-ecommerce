@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<214b9ca622e6c824974021bae16b4161>>
+ * @generated SignedSource<<0deb5e6b840721d07ff6deb46b692559>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -13,6 +13,7 @@ export type CategoriesFilterQuery$variables = {};
 export type CategoriesFilterQuery$data = {
   readonly viewer: {
     readonly id: string;
+    readonly categoriesFilters: ReadonlyArray<string | null> | null;
     readonly products: {
       readonly edges: ReadonlyArray<{
         readonly cursor: string;
@@ -94,6 +95,18 @@ v1 = [
           }
         ],
         "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "categoriesFilters",
+            "storageKey": null
+          }
+        ]
       }
     ],
     "storageKey": null
@@ -127,6 +140,6 @@ return {
 };
 })();
 
-(node as any).hash = "5986d249939b4ff9b1f78279a675f04e";
+(node as any).hash = "4accac80f6118069f2f423751d87c70d";
 
 export default node;

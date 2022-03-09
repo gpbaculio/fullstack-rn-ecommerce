@@ -14,6 +14,7 @@ import {ProductsPaginationQuery} from '../../__generated__/ProductsPaginationQue
 import {ProductFragmentGraphQL_product$key} from '../../__generated__/ProductFragmentGraphQL_product.graphql';
 
 import Product from './Product';
+import Filters from './Filters';
 
 const ProductsPaginationGraphQL = graphql`
   fragment ProductsPagination_viewer on Viewer
@@ -23,9 +24,11 @@ const ProductsPaginationGraphQL = graphql`
     search: {type: "String"}
     categories: {type: "[String]"}
     brands: {type: "[String]"}
+    sortPrice: {type: "SORT_PRICE"}
   )
   @refetchable(queryName: "ProductsPaginationQuery") {
     id
+    showFilter
     cart {
       ...ProductFragmentGraphQL_product
     }
@@ -36,6 +39,7 @@ const ProductsPaginationGraphQL = graphql`
       search: $search
       categories: $categories
       brands: $brands
+      sortPrice: $sortPrice
     ) @connection(key: "ProductsPagination_viewer_products") {
       pageInfo {
         startCursor
@@ -65,12 +69,6 @@ const Products = ({viewer}: ProductsProps) => {
     >(ProductsPaginationGraphQL, viewer);
 
   const onFiltersPress = useCallback(() => {
-    // refetch({
-    //   brands: ['BRANDS', 'TEST'],
-    //   search: 'SEARCH_TEST',
-    //   categories: ['CATE', 'GORY', 'TEST'],
-    // })
-
     commitLocalUpdate(environment, store => {
       const viewerProxy = store.getRoot().getLinkedRecord('viewer');
       if (viewerProxy) {
@@ -123,6 +121,7 @@ const Products = ({viewer}: ProductsProps) => {
           return null;
         }}
       />
+      <Filters showFilter={!!data.showFilter} />
     </>
   );
 };
