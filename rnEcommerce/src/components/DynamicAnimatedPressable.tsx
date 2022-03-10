@@ -1,7 +1,10 @@
-import {View, ViewStyle, ViewProps, StyleProp} from 'react-native';
+import {Pressable, PressableProps, StyleProp, ViewStyle} from 'react-native';
 import React from 'react';
+import Animated from 'react-native-reanimated';
 
-const DynamicView = ({
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const DynamicAnimatedView = ({
   children,
   backfaceVisibility,
   backgroundColor,
@@ -83,8 +86,8 @@ const DynamicView = ({
   transform,
   style,
   ...rest
-}: ViewStyle & ViewProps) => (
-  <View
+}: ViewStyle & PressableProps) => (
+  <AnimatedPressable
     style={[
       {
         backfaceVisibility,
@@ -166,11 +169,11 @@ const DynamicView = ({
         shadowRadius,
         transform,
       } as StyleProp<ViewStyle>,
-      style && style,
+      style && (style as StyleProp<ViewStyle>),
     ]}
     {...rest}>
     {children}
-  </View>
+  </AnimatedPressable>
 );
 
-export default DynamicView;
+export default DynamicAnimatedView;

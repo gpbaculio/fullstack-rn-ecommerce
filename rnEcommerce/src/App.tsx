@@ -6,21 +6,27 @@ import {NavigationContainer} from '@react-navigation/native';
 
 import environment from './environment';
 import Navigation from './navigation';
+import {Provider} from 'react-redux';
+import {initializeStore} from '../store';
+
+const store = initializeStore();
 
 const App = () => {
   return (
     <RelayEnvironmentProvider environment={environment}>
-      <NavigationContainer>
-        <SafeAreaProvider>
-          <StatusBar
-            animated={true}
-            backgroundColor="#61dafb"
-            barStyle="light-content"
-            showHideTransition="slide"
-          />
-          <Navigation />
-        </SafeAreaProvider>
-      </NavigationContainer>
+      <Provider store={store}>
+        <NavigationContainer>
+          <SafeAreaProvider>
+            <StatusBar
+              animated={true}
+              backgroundColor="red"
+              barStyle="light-content"
+              showHideTransition="slide"
+            />
+            <Navigation />
+          </SafeAreaProvider>
+        </NavigationContainer>
+      </Provider>
     </RelayEnvironmentProvider>
   );
 };

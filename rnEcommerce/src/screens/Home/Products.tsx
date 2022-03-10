@@ -1,16 +1,20 @@
-import {FlatList, ActivityIndicator, Pressable, TextInput} from 'react-native';
-import React from 'react';
+import {FlatList, ActivityIndicator, TextInput, StyleSheet} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   graphql,
   usePaginationFragment,
   commitLocalUpdate,
   useRelayEnvironment,
 } from 'react-relay';
-import {DynamicText, DynamicView} from '../../components';
+
+import {DynamicPressable, DynamicText, DynamicView} from '../../components';
+
 import {ProductsPagination_viewer$key} from '../../__generated__/ProductsPagination_viewer.graphql';
 import {ProductsPaginationQuery} from '../../__generated__/ProductsPaginationQuery.graphql';
-import Product from './Product';
 import {ProductFragmentGraphQL_product$key} from '../../__generated__/ProductFragmentGraphQL_product.graphql';
+
+import Product from './Product';
+import {useDebounce} from '../../hooks';
 
 const ProductsPaginationGraphQL = graphql`
   fragment ProductsPagination_viewer on Viewer
@@ -20,9 +24,14 @@ const ProductsPaginationGraphQL = graphql`
     search: {type: "String"}
     categories: {type: "[String]"}
     brands: {type: "[String]"}
+    sortPrice: {type: "SORT_PRICE"}
   )
   @refetchable(queryName: "ProductsPaginationQuery") {
     id
+    showFilter
+    searchText
+    sortPrice
+    shouldRefetch
     cart {
       ...ProductFragmentGraphQL_product
     }
@@ -33,6 +42,7 @@ const ProductsPaginationGraphQL = graphql`
       search: $search
       categories: $categories
       brands: $brands
+      sortPrice: $sortPrice
     ) @connection(key: "ProductsPagination_viewer_products") {
       pageInfo {
         startCursor
@@ -54,59 +64,106 @@ interface ProductsProps {
   viewer: ProductsPagination_viewer$key;
 }
 const Products = ({viewer}: ProductsProps) => {
+  const [text, onChangeText] = useState('');
+  const debouncedText = useDebounce(text, 3000);
   const environment = useRelayEnvironment();
+
+  useEffect(() => {
+    if (debouncedText) {
+      commitLocalUpdate(environment, store => {
+        const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+        if (viewerProxy) {
+          viewerProxy.setValue(debouncedText, 'searchText');
+          viewerProxy.setValue(true, 'shouldRefetch');
+        }
+      });
+    }
+  }, [debouncedText, commitLocalUpdate, environment]);
+
+  const onFiltersPress = useCallback(() => {
+    commitLocalUpdate(environment, store => {
+      const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+      if (viewerProxy) {
+        viewerProxy.setValue(!viewerProxy.getValue('showFilter'), 'showFilter');
+      }
+    });
+  }, [commitLocalUpdate, environment]);
+
   const {data, hasNext, loadNext, isLoadingNext, refetch} =
     usePaginationFragment<
       ProductsPaginationQuery,
       ProductsPagination_viewer$key
     >(ProductsPaginationGraphQL, viewer);
 
+  useEffect(() => {
+    if (data.shouldRefetch) {
+      refetch(
+        {
+          search: data.searchText,
+          sortPrice: data.sortPrice,
+        },
+        {
+          fetchPolicy: 'store-and-network',
+          onComplete: () => {
+            commitLocalUpdate(environment, store => {
+              const viewerProxy = store.getRoot().getLinkedRecord('viewer');
+              if (viewerProxy) {
+                viewerProxy.setValue(false, 'shouldRefetch');
+              }
+            });
+          },
+        },
+      );
+    }
+  }, [
+    data.searchText,
+    data.sortPrice,
+    data.shouldRefetch,
+    refetch,
+    commitLocalUpdate,
+    environment,
+  ]);
+
   return (
     <>
+      <DynamicView
+        flexDirection="row"
+        paddingHorizontal={16}
+        paddingVertical={8}
+        backgroundColor="#f5f5f5"
+        justifyContent="space-between">
+        <DynamicView
+          flex={1}
+          marginRight={16}
+          borderBottomColor="gray"
+          borderBottomWidth={1}>
+          <TextInput
+            style={{paddingVertical: 0}}
+            placeholder="Search Products"
+            value={text}
+            onChangeText={t => onChangeText(t)}
+          />
+        </DynamicView>
+        <DynamicPressable
+          backgroundColor="red"
+          padding={4}
+          alignItems="center"
+          justifyContent="center"
+          borderRadius={4}
+          onPress={onFiltersPress}>
+          <DynamicText color={'#fff'} fontWeight="bold">
+            Filters
+          </DynamicText>
+        </DynamicPressable>
+      </DynamicView>
       <FlatList
-        ListHeaderComponent={() => (
-          <DynamicView
-            flexDirection="row"
-            paddingHorizontal={16}
-            paddingVertical={8}
-            backgroundColor="green"
-            justifyContent="space-between">
-            <DynamicView
-              flex={1}
-              marginRight={16}
-              borderBottomColor="gray"
-              borderBottomWidth={1}>
-              <TextInput placeholder="Search Products" />
-            </DynamicView>
-            {/* use refetch when filtering */}
-            <DynamicView backgroundColor="red">
-              <Pressable
-                onPress={() => {
-                  // refetch({
-                  //   brands: ['BRANDS', 'TEST'],
-                  //   search: 'SEARCH_TEST',
-                  //   categories: ['CATE', 'GORY', 'TEST'],
-                  // })
-                  commitLocalUpdate(environment, store => {
-                    const viewerProxy = store
-                      .getRoot()
-                      .getLinkedRecord('viewer');
-                    if (viewerProxy) {
-                      viewerProxy.setValue(
-                        !viewerProxy.getValue('showFilter'),
-                        'showFilter',
-                      );
-                    }
-                  });
-                }}>
-                <DynamicText color={'blue'}>Filters</DynamicText>
-              </Pressable>
-            </DynamicView>
-          </DynamicView>
-        )}
+        contentContainerStyle={styles.flatList}
         data={data?.products?.edges}
-        renderItem={({item}) => (
-          <Product product={item?.node as ProductFragmentGraphQL_product$key} />
+        renderItem={({item, index}) => (
+          <Product
+            key={`product:${index}`}
+            product={item?.node as ProductFragmentGraphQL_product$key}
+          />
         )}
         keyExtractor={(item, index) => `repo:${index}:${item?.cursor}`}
         ListFooterComponent={() => {
@@ -115,9 +172,21 @@ const Products = ({viewer}: ProductsProps) => {
           }
           if (hasNext) {
             return (
-              <Pressable onPress={() => loadNext(10)}>
-                <DynamicText color={'red'}>Load More</DynamicText>
-              </Pressable>
+              <DynamicPressable
+                width="100%"
+                backgroundColor="red"
+                marginTop={8}
+                borderRadius={4}
+                marginBottom={36}
+                paddingVertical={8}
+                onPress={() => loadNext(10)}>
+                <DynamicText
+                  textAlign="center"
+                  color={'#fff'}
+                  fontWeight="bold">
+                  LOAD MORE
+                </DynamicText>
+              </DynamicPressable>
             );
           }
           return null;
@@ -128,3 +197,10 @@ const Products = ({viewer}: ProductsProps) => {
 };
 
 export default Products;
+
+const styles = StyleSheet.create({
+  flatList: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+  },
+});

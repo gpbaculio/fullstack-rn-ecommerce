@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import React from 'react';
 
-const DynamicView = ({
+const DynamicPressable = ({
   children,
   backfaceVisibility,
   backgroundColor,
@@ -88,10 +88,11 @@ const DynamicView = ({
   shadowOpacity,
   shadowRadius,
   transform,
+  style,
   ...rest
 }: ViewStyle & PressableProps) => (
   <Pressable
-    style={
+    style={[
       {
         backfaceVisibility,
         backgroundColor,
@@ -171,11 +172,12 @@ const DynamicView = ({
         shadowOpacity,
         shadowRadius,
         transform,
-      } as StyleProp<ViewStyle>
-    }
+      } as StyleProp<ViewStyle>,
+      style && (style as StyleProp<ViewStyle>),
+    ]}
     {...rest}>
     {children}
   </Pressable>
 );
 
-export default DynamicView;
+export default DynamicPressable;

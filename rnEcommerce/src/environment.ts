@@ -57,7 +57,7 @@ const fetchGraphQL = async (
       ? Platform.OS === 'android'
         ? Config.ANDROID_LOCAL_URL
         : 'http://localhost:3001/graphql'
-      : '';
+      : Config.TEST_URL;
   console.log('url: ', url);
   const response = await fetch(url, {
     method: 'POST',

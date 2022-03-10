@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<152c6f43729b6c97532cc3600cd36a55>>
+ * @generated SignedSource<<d5978588818a1144f7c864c7a304b8fd>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,13 +9,17 @@
 // @ts-nocheck
 
 import { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+export type SORT_PRICE = "ASCENDING" | "DESCENDING" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type ProductsPagination_viewer$data = {
   readonly id: string;
+  readonly showFilter: boolean | null;
+  readonly searchText: string | null;
+  readonly sortPrice: SORT_PRICE | null;
+  readonly shouldRefetch: boolean | null;
   readonly cart: ReadonlyArray<{
     readonly " $fragmentSpreads": FragmentRefs<"ProductFragmentGraphQL_product">;
   } | null> | null;
-  readonly showFilter: boolean | null;
   readonly products: {
     readonly pageInfo: {
       readonly startCursor: string | null;
@@ -80,6 +84,11 @@ return {
       "defaultValue": null,
       "kind": "LocalArgument",
       "name": "search"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "sortPrice"
     }
   ],
   "kind": "Fragment",
@@ -127,6 +136,11 @@ return {
           "kind": "Variable",
           "name": "search",
           "variableName": "search"
+        },
+        {
+          "kind": "Variable",
+          "name": "sortPrice",
+          "variableName": "sortPrice"
         }
       ],
       "concreteType": "ProductsConnection",
@@ -220,6 +234,34 @@ return {
         {
           "alias": null,
           "args": null,
+          "kind": "ScalarField",
+          "name": "showFilter",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "searchText",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "sortPrice",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "shouldRefetch",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
           "concreteType": "Product",
           "kind": "LinkedField",
           "name": "cart",
@@ -227,13 +269,6 @@ return {
           "selections": [
             (v2/*: any*/)
           ],
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "showFilter",
           "storageKey": null
         }
       ]
@@ -244,6 +279,6 @@ return {
 };
 })();
 
-(node as any).hash = "e074d879b20e9355ec5b29f92059ea20";
+(node as any).hash = "9bf201a8d9209941388c548a92efcf50";
 
 export default node;
