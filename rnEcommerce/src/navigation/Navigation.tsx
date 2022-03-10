@@ -94,63 +94,20 @@ const CartHeader = () => {
   );
 };
 
-const Navigation = () => {
-  const environment = useRelayEnvironment();
-
-  // initialize local state
-  useEffect(() => {
-    commitLocalUpdate(environment, store => {
-      const viewerProxy = store
-        .getRoot()
-        .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
-      if (viewerProxy) {
-        const cartProxy = viewerProxy.getValue('cart');
-        const brandsFiltersProxy = viewerProxy.getValue('brandsFilters');
-        const categoriesFiltersProxy =
-          viewerProxy.getValue('categoriesFilters');
-        const showFilterProxy = viewerProxy.getValue('showFilter');
-        const searchTextProxy = viewerProxy.getValue('searchText');
-        const sortPriceProxy = viewerProxy.getValue('sortPrice');
-        const shouldRefetchProxy = viewerProxy.getValue('shouldRefetch');
-
-        if (
-          brandsFiltersProxy === undefined &&
-          cartProxy === undefined &&
-          categoriesFiltersProxy === undefined &&
-          showFilterProxy === undefined &&
-          searchTextProxy === undefined &&
-          sortPriceProxy === undefined &&
-          shouldRefetchProxy === undefined
-        ) {
-          viewerProxy.setLinkedRecords([], 'cart');
-          viewerProxy.setValue([], 'brandsFilters');
-          viewerProxy.setValue([], 'categoriesFilters');
-          viewerProxy.setValue(false, 'showFilter');
-          viewerProxy.setValue('', 'searchText');
-          viewerProxy.setValue(null, 'sortPrice');
-          viewerProxy.setValue(false, 'shouldRefetch');
-        }
-      }
-    });
-  }, [commitLocalUpdate, environment]);
-
-  return (
-    <>
-      <AppStack.Navigator>
-        <AppStack.Screen
-          name="Home"
-          options={{header: HomeHeader}}
-          component={Home}
-        />
-        <AppStack.Screen
-          name="Cart"
-          options={{header: CartHeader}}
-          component={Cart}
-        />
-      </AppStack.Navigator>
-    </>
-  );
-};
+const Navigation = () => (
+  <AppStack.Navigator>
+    <AppStack.Screen
+      name="Home"
+      options={{header: HomeHeader}}
+      component={Home}
+    />
+    <AppStack.Screen
+      name="Cart"
+      options={{header: CartHeader}}
+      component={Cart}
+    />
+  </AppStack.Navigator>
+);
 
 export default () => (
   <Suspense

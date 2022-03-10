@@ -1,4 +1,4 @@
-import {ScrollView, useWindowDimensions} from 'react-native';
+import {useWindowDimensions} from 'react-native';
 import React, {useCallback, useEffect} from 'react';
 import {
   useAnimatedStyle,
@@ -6,12 +6,7 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 import {commitLocalUpdate} from 'relay-runtime';
-import {
-  RefetchFnDynamic,
-  useRelayEnvironment,
-  graphql,
-  useLazyLoadQuery,
-} from 'react-relay';
+import {useRelayEnvironment} from 'react-relay';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {
@@ -24,7 +19,6 @@ import {
 
 import PriceFilters from './PriceFilters';
 import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
-import {useCountRenders} from '../../../useCountRenders';
 
 interface FiltersProps {
   showFilter: boolean;

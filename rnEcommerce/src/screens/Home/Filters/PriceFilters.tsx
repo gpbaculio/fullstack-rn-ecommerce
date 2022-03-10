@@ -7,7 +7,13 @@ import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
 import {SORT_PRICE} from '../../../__generated__/ProductsPaginationQuery.graphql';
 import {useHomeViewer} from '../Home';
 
-const PriceFilters = () => {
+const PriceFilter = ({
+  sortPrice,
+  type,
+}: {
+  sortPrice: SORT_PRICE;
+  type: SORT_PRICE;
+}) => {
   const environment = useRelayEnvironment();
 
   const onPriceFilterPress = useCallback(
@@ -27,6 +33,28 @@ const PriceFilters = () => {
     [environment, commitLocalUpdate],
   );
 
+  return (
+    <DynamicPressable
+      borderColor={'red'}
+      borderWidth={1}
+      borderRadius={4}
+      paddingVertical={3}
+      paddingHorizontal={6}
+      flex={1}
+      onPress={() => {
+        onPriceFilterPress(type === 'DESCENDING' ? 'DESCENDING' : 'ASCENDING');
+      }}
+      backgroundColor={sortPrice === type ? 'red' : 'transparent'}
+      marginRight={6}
+      alignItems="center">
+      <DynamicText color={'#fff'} fontWeight="bold">
+        {type === 'DESCENDING' ? 'High to Low' : 'Low to High'}
+      </DynamicText>
+    </DynamicPressable>
+  );
+};
+
+const PriceFilters = () => {
   const viewer = useHomeViewer();
 
   return (
@@ -34,45 +62,17 @@ const PriceFilters = () => {
       <DynamicText color={'#fff'} fontWeight="bold">
         PRICE
       </DynamicText>
-      <DynamicView
-        flexDirection="row"
-        width="100%"
-        marginTop={6}
-        justifyContent="space-around">
-        <DynamicPressable
-          borderColor={'red'}
-          borderWidth={1}
-          borderRadius={4}
-          paddingVertical={3}
-          paddingHorizontal={6}
-          flex={1}
-          onPress={() => onPriceFilterPress('DESCENDING')}
-          backgroundColor={
-            viewer?.sortPrice === 'DESCENDING' ? 'red' : 'transparent'
-          }
-          marginRight={6}
-          alignItems="center">
-          <DynamicText color={'#fff'} fontWeight="bold">
-            High to Low
-          </DynamicText>
-        </DynamicPressable>
-        <DynamicPressable
-          onPress={() => onPriceFilterPress('ASCENDING')}
-          backgroundColor={
-            viewer?.sortPrice === 'ASCENDING' ? 'red' : 'transparent'
-          }
-          borderColor={'red'}
-          borderWidth={1}
-          borderRadius={4}
-          paddingVertical={3}
-          paddingHorizontal={6}
-          flex={1}
-          marginLeft={6}
-          alignItems="center">
-          <DynamicText color={'#fff'} fontWeight="bold">
-            Low to High
-          </DynamicText>
-        </DynamicPressable>
+      <DynamicView flexDirection="row" marginTop={8}>
+        <PriceFilter
+          key={'price-filter-descending'}
+          sortPrice={viewer?.sortPrice as SORT_PRICE}
+          type="DESCENDING"
+        />
+        <PriceFilter
+          key={'price-filter-ascending'}
+          sortPrice={viewer?.sortPrice as SORT_PRICE}
+          type="ASCENDING"
+        />
       </DynamicView>
     </DynamicView>
   );

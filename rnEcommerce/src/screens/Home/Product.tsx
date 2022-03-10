@@ -55,6 +55,7 @@ const Product = ({product}: ProductProps) => {
           viewerProxy.getLinkedRecords<ProductFragmentGraphQL_product$key[]>(
             'cart',
           );
+        console.log('cartRecords: ', cartRecords);
 
         const cartNodeIds = cartRecords?.map(i => i.getDataID());
 

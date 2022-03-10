@@ -1,11 +1,5 @@
-import {
-  FlatList,
-  ActivityIndicator,
-  Pressable,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import React, {Suspense, useCallback, useEffect, useState} from 'react';
+import {FlatList, ActivityIndicator, TextInput, StyleSheet} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   graphql,
   usePaginationFragment,
@@ -20,7 +14,6 @@ import {ProductsPaginationQuery} from '../../__generated__/ProductsPaginationQue
 import {ProductFragmentGraphQL_product$key} from '../../__generated__/ProductFragmentGraphQL_product.graphql';
 
 import Product from './Product';
-import Filters from './Filters';
 import {useDebounce} from '../../hooks';
 
 const ProductsPaginationGraphQL = graphql`
@@ -71,9 +64,10 @@ interface ProductsProps {
   viewer: ProductsPagination_viewer$key;
 }
 const Products = ({viewer}: ProductsProps) => {
-  const environment = useRelayEnvironment();
   const [text, onChangeText] = useState('');
   const debouncedText = useDebounce(text, 3000);
+  const environment = useRelayEnvironment();
+
   useEffect(() => {
     if (debouncedText) {
       commitLocalUpdate(environment, store => {
@@ -86,12 +80,6 @@ const Products = ({viewer}: ProductsProps) => {
     }
   }, [debouncedText, commitLocalUpdate, environment]);
 
-  const {data, hasNext, loadNext, isLoadingNext, refetch} =
-    usePaginationFragment<
-      ProductsPaginationQuery,
-      ProductsPagination_viewer$key
-    >(ProductsPaginationGraphQL, viewer);
-
   const onFiltersPress = useCallback(() => {
     commitLocalUpdate(environment, store => {
       const viewerProxy = store.getRoot().getLinkedRecord('viewer');
@@ -100,6 +88,12 @@ const Products = ({viewer}: ProductsProps) => {
       }
     });
   }, [commitLocalUpdate, environment]);
+
+  const {data, hasNext, loadNext, isLoadingNext, refetch} =
+    usePaginationFragment<
+      ProductsPaginationQuery,
+      ProductsPagination_viewer$key
+    >(ProductsPaginationGraphQL, viewer);
 
   useEffect(() => {
     if (data.shouldRefetch) {

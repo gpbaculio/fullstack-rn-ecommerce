@@ -58,7 +58,6 @@ export const HomeQueryGraphQL = graphql`
   }
 `;
 
-// initialize local state
 export const useHomeViewer = () => {
   const {state} = useHome();
   const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {
@@ -74,6 +73,45 @@ const Home = ({fetchKey}: {fetchKey: number}) => {
   useEffect(() => {
     dispatch(actions.setFetchKey(fetchKey));
   }, [fetchKey, dispatch, actions]);
+
+  const environment = useRelayEnvironment();
+
+  // initialize local state
+  useEffect(() => {
+    commitLocalUpdate(environment, store => {
+      const viewerProxy = store
+        .getRoot()
+        .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
+      if (viewerProxy) {
+        const cartProxy = viewerProxy.getValue('cart');
+        const brandsFiltersProxy = viewerProxy.getValue('brandsFilters');
+        const categoriesFiltersProxy =
+          viewerProxy.getValue('categoriesFilters');
+        const showFilterProxy = viewerProxy.getValue('showFilter');
+        const searchTextProxy = viewerProxy.getValue('searchText');
+        const sortPriceProxy = viewerProxy.getValue('sortPrice');
+        const shouldRefetchProxy = viewerProxy.getValue('shouldRefetch');
+
+        if (
+          brandsFiltersProxy === undefined &&
+          cartProxy === undefined &&
+          categoriesFiltersProxy === undefined &&
+          showFilterProxy === undefined &&
+          searchTextProxy === undefined &&
+          sortPriceProxy === undefined &&
+          shouldRefetchProxy === undefined
+        ) {
+          viewerProxy.setLinkedRecords([], 'cart');
+          viewerProxy.setValue([], 'brandsFilters');
+          viewerProxy.setValue([], 'categoriesFilters');
+          viewerProxy.setValue(false, 'showFilter');
+          viewerProxy.setValue('', 'searchText');
+          viewerProxy.setValue(null, 'sortPrice');
+          viewerProxy.setValue(false, 'shouldRefetch');
+        }
+      }
+    });
+  }, [commitLocalUpdate, environment]);
 
   const viewer = useHomeViewer();
 
