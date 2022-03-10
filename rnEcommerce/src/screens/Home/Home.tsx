@@ -7,6 +7,8 @@ import {
   useRelayEnvironment,
 } from 'react-relay';
 
+import {useHome} from '../../../store/home';
+
 import {
   ErrorBoundaryWithRetry,
   DynamicView,
@@ -57,63 +59,38 @@ export const HomeQueryGraphQL = graphql`
 `;
 
 // initialize local state
-export const useHomeViewer = (fetchKey: number) => {
-  const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {fetchKey});
+export const useHomeViewer = () => {
+  const {state} = useHome();
+  const {viewer} = useLazyLoadQuery<HomeQuery>(HomeQueryGraphQL, {
+    fetchKey: state.fetchKey,
+  });
   return viewer;
 };
 
 const Home = ({fetchKey}: {fetchKey: number}) => {
-  const environment = useRelayEnvironment();
-  const viewer = useHomeViewer(fetchKey);
+  const {dispatch, actions} = useHome();
+
+  // watch fetchKey changes
   useEffect(() => {
-    console.log('render');
-    commitLocalUpdate(environment, store => {
-      const viewerProxy = store
-        .getRoot()
-        .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
+    dispatch(actions.setFetchKey(fetchKey));
+  }, [fetchKey, dispatch, actions]);
 
-      const cartProxy = viewerProxy.getValue('cart');
-      const brandsFiltersProxy = viewerProxy.getValue('brandsFilters');
-      const categoriesFiltersProxy = viewerProxy.getValue('categoriesFilters');
-      const showFilterProxy = viewerProxy.getValue('showFilter');
-      const searchTextProxy = viewerProxy.getValue('searchText');
-      const sortPriceProxy = viewerProxy.getValue('sortPrice');
-      const shouldRefetchProxy = viewerProxy.getValue('shouldRefetch');
+  const viewer = useHomeViewer();
 
-      if (
-        viewerProxy &&
-        brandsFiltersProxy === undefined &&
-        cartProxy === undefined &&
-        categoriesFiltersProxy === undefined &&
-        showFilterProxy === undefined &&
-        searchTextProxy === undefined &&
-        sortPriceProxy === undefined &&
-        shouldRefetchProxy === undefined
-      ) {
-        viewerProxy.setLinkedRecords([], 'cart');
-        viewerProxy.setValue([], 'brandsFilters');
-        viewerProxy.setValue([], 'categoriesFilters');
-        viewerProxy.setValue(false, 'showFilter');
-        viewerProxy.setValue('', 'searchText');
-        viewerProxy.setValue(null, 'sortPrice');
-        viewerProxy.setValue(false, 'shouldRefetch');
-      }
-    });
-  }, [commitLocalUpdate, environment]);
   return (
-    <Suspense
-      fallback={
-        <DynamicView flex={1} justifyContent="center" alignItems="center">
-          <ActivityIndicator size="large" color="#868f99" />
-        </DynamicView>
-      }>
-      <Products viewer={viewer as ProductsPagination_viewer$key} />
-      <Filters fetchKey={fetchKey} showFilter={!!viewer?.showFilter} />
-    </Suspense>
+    <>
+      <Filters showFilter={!!viewer?.showFilter} />
+      <Suspense
+        fallback={
+          <DynamicView flex={1} justifyContent="center" alignItems="center">
+            <ActivityIndicator size="large" color="#868f99" />
+          </DynamicView>
+        }>
+        <Products viewer={viewer as ProductsPagination_viewer$key} />
+      </Suspense>
+    </>
   );
 };
-
-export const FetchKeyContext = React.createContext(0);
 
 export default () => (
   <ErrorBoundaryWithRetry
@@ -128,10 +105,8 @@ export default () => (
         </DynamicPressable>
       </DynamicView>
     )}>
-    {({fetchKey}) => (
-      <FetchKeyContext.Provider value={fetchKey}>
-        <Home fetchKey={fetchKey} />
-      </FetchKeyContext.Provider>
-    )}
+    {({fetchKey}) => {
+      return <Home fetchKey={fetchKey} />;
+    }}
   </ErrorBoundaryWithRetry>
 );

@@ -28,10 +28,9 @@ import {useCountRenders} from '../../../useCountRenders';
 
 interface FiltersProps {
   showFilter: boolean;
-  fetchKey: number;
 }
 
-const Filters = ({showFilter, fetchKey}: FiltersProps) => {
+const Filters = ({showFilter}: FiltersProps) => {
   const environment = useRelayEnvironment();
 
   const {bottom} = useSafeAreaInsets();
@@ -122,7 +121,7 @@ const Filters = ({showFilter, fetchKey}: FiltersProps) => {
         paddingBottom={bottom}
         padding={12}
         style={filterStyle}>
-        <PriceFilters fetchKey={fetchKey} />
+        <PriceFilters />
         <DynamicView
           position="absolute"
           width="100%"

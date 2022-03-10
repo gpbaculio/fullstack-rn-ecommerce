@@ -1,109 +1,150 @@
-import React, {Suspense, useContext} from 'react';
+import React, {Suspense, useCallback, useEffect} from 'react';
 import {
   createStackNavigator,
   StackNavigationProp,
 } from '@react-navigation/stack';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ActivityIndicator} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {commitLocalUpdate, useRelayEnvironment} from 'react-relay';
 
 import {Home, Cart} from '../screens';
 import {DynamicPressable, DynamicText, DynamicView} from '../components';
-import {FetchKeyContext, useHomeViewer} from '../screens/Home/Home';
-import {useNavigation} from '@react-navigation/native';
+import {useHomeViewer} from '../screens/Home/Home';
+import {HomeQuery} from '../__generated__/HomeQuery.graphql';
 
 export type AppStackParamList = {
   Home: undefined;
-  Cart: {
-    fetchKey: number;
-  };
+  Cart: undefined;
 };
 
 const AppStack = createStackNavigator<AppStackParamList>();
 
+const HomeHeader = () => {
+  const {top} = useSafeAreaInsets();
+
+  const {navigate} = useNavigation<StackNavigationProp<AppStackParamList>>();
+
+  const viewer = useHomeViewer();
+
+  const onCartPress = useCallback(() => {
+    navigate('Cart');
+  }, [navigate]);
+
+  return (
+    <DynamicView
+      paddingTop={top + 16}
+      backgroundColor="red"
+      paddingHorizontal={16}
+      paddingBottom={8}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="space-between">
+      <DynamicText color="#fff" fontWeight="bold">
+        GROWSARI
+      </DynamicText>
+      <DynamicPressable
+        borderRadius={4}
+        borderWidth={1}
+        padding={4}
+        borderColor={'#fff'}
+        onPress={onCartPress}>
+        <DynamicText color="#fff" fontWeight="bold">
+          Cart ({viewer?.cart?.length || 0})
+        </DynamicText>
+      </DynamicPressable>
+    </DynamicView>
+  );
+};
+
+const CartHeader = () => {
+  const {top} = useSafeAreaInsets();
+  const {goBack} = useNavigation<StackNavigationProp<AppStackParamList>>();
+  const viewer = useHomeViewer();
+
+  const onBackPress = useCallback(() => {
+    goBack();
+  }, [goBack]);
+
+  return (
+    <DynamicView
+      paddingTop={top + 16}
+      backgroundColor="red"
+      paddingHorizontal={16}
+      paddingBottom={8}
+      flexDirection="row"
+      alignItems="center"
+      justifyContent="space-between">
+      <DynamicPressable
+        borderWidth={1}
+        padding={4}
+        borderRadius={4}
+        borderColor={'#fff'}
+        onPress={onBackPress}>
+        <DynamicText color="#fff" fontWeight="bold">
+          BACK
+        </DynamicText>
+      </DynamicPressable>
+      <DynamicView padding={5}>
+        <DynamicText color="#fff" fontWeight="bold">
+          CART ({viewer?.cart?.length})
+        </DynamicText>
+      </DynamicView>
+    </DynamicView>
+  );
+};
+
 const Navigation = () => {
+  const environment = useRelayEnvironment();
+
+  // initialize local state
+  useEffect(() => {
+    commitLocalUpdate(environment, store => {
+      const viewerProxy = store
+        .getRoot()
+        .getLinkedRecord<HomeQuery['response']['viewer']>('viewer');
+      if (viewerProxy) {
+        const cartProxy = viewerProxy.getValue('cart');
+        const brandsFiltersProxy = viewerProxy.getValue('brandsFilters');
+        const categoriesFiltersProxy =
+          viewerProxy.getValue('categoriesFilters');
+        const showFilterProxy = viewerProxy.getValue('showFilter');
+        const searchTextProxy = viewerProxy.getValue('searchText');
+        const sortPriceProxy = viewerProxy.getValue('sortPrice');
+        const shouldRefetchProxy = viewerProxy.getValue('shouldRefetch');
+
+        if (
+          brandsFiltersProxy === undefined &&
+          cartProxy === undefined &&
+          categoriesFiltersProxy === undefined &&
+          showFilterProxy === undefined &&
+          searchTextProxy === undefined &&
+          sortPriceProxy === undefined &&
+          shouldRefetchProxy === undefined
+        ) {
+          viewerProxy.setLinkedRecords([], 'cart');
+          viewerProxy.setValue([], 'brandsFilters');
+          viewerProxy.setValue([], 'categoriesFilters');
+          viewerProxy.setValue(false, 'showFilter');
+          viewerProxy.setValue('', 'searchText');
+          viewerProxy.setValue(null, 'sortPrice');
+          viewerProxy.setValue(false, 'shouldRefetch');
+        }
+      }
+    });
+  }, [commitLocalUpdate, environment]);
+
   return (
     <>
       <AppStack.Navigator>
         <AppStack.Screen
           name="Home"
+          options={{header: HomeHeader}}
           component={Home}
-          options={{
-            header: () => {
-              const {top} = useSafeAreaInsets();
-              const fetchKey = useContext(FetchKeyContext);
-              const navigation =
-                useNavigation<StackNavigationProp<AppStackParamList>>();
-              const viewer = useHomeViewer(fetchKey);
-              return (
-                <DynamicView
-                  paddingTop={top + 16}
-                  backgroundColor="red"
-                  paddingHorizontal={16}
-                  paddingBottom={8}
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="space-between">
-                  <DynamicText color="#fff" fontWeight="bold">
-                    GROWSARI
-                  </DynamicText>
-                  <DynamicPressable
-                    borderRadius={4}
-                    borderWidth={1}
-                    padding={4}
-                    borderColor={'#fff'}
-                    onPress={() => {
-                      navigation.navigate('Cart', {
-                        fetchKey,
-                      });
-                    }}>
-                    <DynamicText color="#fff" fontWeight="bold">
-                      Cart ({viewer?.cart?.length})
-                    </DynamicText>
-                  </DynamicPressable>
-                </DynamicView>
-              );
-            },
-          }}
         />
         <AppStack.Screen
-          options={{
-            header: () => {
-              const {top} = useSafeAreaInsets();
-              const fetchKey = useContext(FetchKeyContext);
-              const navigation =
-                useNavigation<StackNavigationProp<AppStackParamList>>();
-              const viewer = useHomeViewer(fetchKey);
-              return (
-                <DynamicView
-                  paddingTop={top + 16}
-                  backgroundColor="red"
-                  paddingHorizontal={16}
-                  paddingBottom={8}
-                  flexDirection="row"
-                  alignItems="center"
-                  justifyContent="space-between">
-                  <DynamicPressable
-                    borderWidth={1}
-                    padding={4}
-                    borderRadius={4}
-                    borderColor={'#fff'}
-                    onPress={() => {
-                      navigation.goBack();
-                    }}>
-                    <DynamicText color="#fff" fontWeight="bold">
-                      BACK
-                    </DynamicText>
-                  </DynamicPressable>
-                  <DynamicView padding={5}>
-                    <DynamicText color="#fff" fontWeight="bold">
-                      CART ({viewer?.cart?.length})
-                    </DynamicText>
-                  </DynamicView>
-                </DynamicView>
-              );
-            },
-          }}
           name="Cart"
+          options={{header: CartHeader}}
           component={Cart}
         />
       </AppStack.Navigator>

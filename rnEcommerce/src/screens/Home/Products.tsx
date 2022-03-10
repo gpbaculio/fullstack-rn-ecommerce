@@ -107,10 +107,9 @@ const Products = ({viewer}: ProductsProps) => {
         {
           search: data.searchText,
           sortPrice: data.sortPrice,
-          categories: data?.categoriesFilters,
-          brands: data?.brandsFilters,
         },
         {
+          fetchPolicy: 'store-and-network',
           onComplete: () => {
             commitLocalUpdate(environment, store => {
               const viewerProxy = store.getRoot().getLinkedRecord('viewer');
@@ -126,8 +125,6 @@ const Products = ({viewer}: ProductsProps) => {
     data.searchText,
     data.sortPrice,
     data.shouldRefetch,
-    data.categoriesFilters,
-    data.brandsFilters,
     refetch,
     commitLocalUpdate,
     environment,

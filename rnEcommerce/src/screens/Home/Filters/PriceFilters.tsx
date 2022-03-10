@@ -7,8 +7,7 @@ import {HomeQuery} from '../../../__generated__/HomeQuery.graphql';
 import {SORT_PRICE} from '../../../__generated__/ProductsPaginationQuery.graphql';
 import {useHomeViewer} from '../Home';
 
-const PriceFilters = ({fetchKey}: {fetchKey: number}) => {
-  const viewer = useHomeViewer(fetchKey);
+const PriceFilters = () => {
   const environment = useRelayEnvironment();
 
   const onPriceFilterPress = useCallback(
@@ -27,6 +26,8 @@ const PriceFilters = ({fetchKey}: {fetchKey: number}) => {
     },
     [environment, commitLocalUpdate],
   );
+
+  const viewer = useHomeViewer();
 
   return (
     <DynamicView width="100%">
